@@ -1,9 +1,9 @@
-package com.testcraftsmanship.core.type;
+package com.testcraftsmanship.deepassertions.core.type;
 
 import lombok.Getter;
 
 public enum ReflectAssertionType {
-    USER("user"), ITEM("organization");
+    USER("user"), ITEM("item");
     @Getter
     private String type;
 

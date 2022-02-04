@@ -1,4 +1,4 @@
-package com.testcraftsmanship.core.annotations;
+package com.testcraftsmanship.deepassertions.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.FIELD, ElementType.TYPE})
+@Target(value = {ElementType.FIELD})
 public @interface VerifiableExclude {
     String[] type() default "";
 }
