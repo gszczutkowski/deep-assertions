@@ -1,4 +1,4 @@
-package com.testcraftsmanship.core.annotations;
+package com.testcraftsmanship.deepassertions.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
