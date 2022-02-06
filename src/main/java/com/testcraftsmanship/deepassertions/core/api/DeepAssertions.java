@@ -1,25 +1,23 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
+import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
+import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.SoftAssertions;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.testcraftsmanship.deepassertions.core.api.ObjectValidator.isApiVerifiableForType;
 import static com.testcraftsmanship.deepassertions.core.api.ObjectValidator.isApiVerifiableOnClassLevel;
 import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
+import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.failMessageCreator;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
-import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
 public class DeepAssertions {
-    private SoftAssertions assertions = new SoftAssertions();
+    private AssertionCreator assertionCreator = new AssertionCreator();
     private Config config = new Config(DeepAssertType.LOCAL);
     private List<String> deepAssertTags = new ArrayList<>();
 
@@ -28,20 +26,20 @@ public class DeepAssertions {
     }
 
     public void assertEquals(Object actualItem, Object expectedItem) {
-        assertions = new SoftAssertions();
-        String mainClassName = actualItem.getClass().getSimpleName();
-        deepCompare(actualItem, expectedItem, mainClassName);
-        assertions.assertAll();
+        assertionCreator = new AssertionCreator();
+        deepCompare(actualItem, expectedItem, new LocationCreator(actualItem.getClass()));
+        assertionCreator.performAssertions();
     }
 
-    public void deepCompare(Object actualItem, Object expectedItem, String currentItemLocation) {
+    public void deepCompare(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
         if (actualItem == null && expectedItem == null) {
             return;
         } else if (actualItem == null || expectedItem == null) {
-            fail("Actual item of type " + currentItemLocation + " is " + actualItem + " but expected is " + expectedItem);
+            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation()));
+            return;
         } else if (actualItem.getClass() != expectedItem.getClass()) {
-            fail("Actual item type is " + actualItem.getClass().getSimpleName()
-                    + " but expected item type is " + expectedItem.getClass().getSimpleName());
+            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation()));
+            return;
         }
         final Class clazz = actualItem.getClass();
 
@@ -50,23 +48,25 @@ public class DeepAssertions {
             case STRING:
             case ENUM:
             case OBJECT:
-                assertions.assertThat(actualItem)
-                        .withFailMessage(clazz.getSimpleName() + " " + currentItemLocation
-                                + " has value " + actualItem + ", expect to have " + expectedItem)
-                        .isEqualTo(expectedItem);
+                if (!actualItem.equals(expectedItem)) {
+                    assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation()));
+                }
                 return;
+            case MAP:
+                assertEqualityOfMapItems(actualItem, expectedItem, locationCreator);
+                break;
             case COLLECTION:
-                assertEqualityOfCollectionItems(actualItem, expectedItem, currentItemLocation);
+                assertEqualityOfCollectionItems(actualItem, expectedItem, locationCreator);
                 break;
             case ARRAY:
-                assertEqualityOfArrayItems(actualItem, expectedItem, currentItemLocation);
+                assertEqualityOfArrayItems(actualItem, expectedItem, locationCreator);
                 break;
             case DEEP_VERIFIABLE:
-                compareFields(actualItem, expectedItem, currentItemLocation);
+                compareFields(actualItem, expectedItem, locationCreator);
         }
     }
 
-    private void compareFields(Object actualItem, Object expectedItem, String currentItemLocation) {
+    private void compareFields(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
         final Class clazz = actualItem.getClass();
         final Field[] fields = clazz.getDeclaredFields();
 
@@ -78,11 +78,11 @@ public class DeepAssertions {
             field.setAccessible(true);
             Object actualObj = extractFieldValueFromObject(field, actualItem);
             Object expectedObj = extractFieldValueFromObject(field, expectedItem);
-            deepCompare(actualObj, expectedObj, currentItemLocation + "." + field.getName());
+            deepCompare(actualObj, expectedObj, locationCreator.locationOfField(field));
         }
     }
 
-    private void assertEqualityOfArrayItems(Object actualItem, Object expectedItem, String currentItemLocation) {
+    private void assertEqualityOfArrayItems(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
         List<Object> actualArray = new ArrayList<>();
         List<Object> expectedArray = new ArrayList<>();
         int actualLength = Array.getLength(actualItem);
@@ -95,34 +95,62 @@ public class DeepAssertions {
         }
 
         if (actualArray.size() != expectedArray.size()) {
-            assertions.fail(currentItemLocation + " expect to have "
-                    + expectedArray.size() + " items but have "
-                    + actualArray.size() + " items");
+            assertionCreator.fail(failMessageCreator(actualArray.size(), expectedArray.size(), locationCreator.getLocation(), actualItem.getClass()));
             return;
         }
         Iterator actIterator = actualArray.iterator();
         Iterator expIterator = expectedArray.iterator();
         int i = 0;
         while (actIterator.hasNext() && expIterator.hasNext()) {
-            deepCompare(actIterator.next(), expIterator.next(), currentItemLocation + "[" + i++ + "]");
+            deepCompare(actIterator.next(), expIterator.next(), locationCreator.locationOnPosition(i++));
         }
     }
 
+    private void assertEqualityOfMapItems(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
+        Map actualMap = (Map) actualItem;
+        Map expectedMap = (Map) expectedItem;
+        if (actualMap.size() != expectedMap.size()) {
+            assertionCreator.fail(failMessageCreator(actualMap.size(), expectedMap.size(), locationCreator.getLocation(), actualItem.getClass()));
+            return;
+        }
+        for (Map.Entry entry : ((Map<?, ?>) actualItem).entrySet()) {
+            deepCompare(entry.getValue(), ((Map<?, ?>) expectedItem).get(entry.getKey()),
+                    locationCreator.locationOnPosition(entry.getKey()));
+        }
+    }
 
-    private void assertEqualityOfCollectionItems(Object actualItem, Object expectedItem, String currentItemLocation) {
+    private void assertEqualityOfCollectionItems(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
         Collection actualCollection = (Collection) actualItem;
         Collection expectedCollection = (Collection) expectedItem;
         if (actualCollection.size() != expectedCollection.size()) {
-            assertions.fail(currentItemLocation + " expect to have "
-                    + expectedCollection.size() + " items but have "
-                    + actualCollection.size() + " items");
+            assertionCreator.fail(failMessageCreator(actualCollection.size(), expectedCollection.size(),
+                    locationCreator.getLocation(), actualItem.getClass()));
             return;
         }
         Iterator actIterator = actualCollection.iterator();
         Iterator expIterator = expectedCollection.iterator();
-        int i = 0; //How to proceed with Sets
-        while (actIterator.hasNext() && expIterator.hasNext()) {
-            deepCompare(actIterator.next(), expIterator.next(), currentItemLocation + "(" + i++ + ")");
+        if (actualItem instanceof Set) {
+            boolean foundDiffs = false;
+            while (actIterator.hasNext()) {
+                Object actItem = actIterator.next();
+                if (!expectedCollection.contains(actItem)) {
+                    foundDiffs = true;
+                    assertionCreator.fail(failMessageCreator(actItem, true, locationCreator.getLocation()));
+                }
+            }
+            if (foundDiffs) {
+                while (expIterator.hasNext()) {
+                    Object expItem = expIterator.next();
+                    if (!actualCollection.contains(expItem)) {
+                        assertionCreator.fail(failMessageCreator(expItem, false, locationCreator.getLocation()));
+                    }
+                }
+            }
+        } else {
+            int i = 0;
+            while (actIterator.hasNext() && expIterator.hasNext()) {
+                deepCompare(actIterator.next(), expIterator.next(), locationCreator.locationOnPosition(i++));
+            }
         }
     }
 

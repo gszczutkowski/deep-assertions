@@ -3,6 +3,7 @@ package com.testcraftsmanship.deepassertions.core.fields;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 
 import static com.testcraftsmanship.deepassertions.core.config.Config.PROJECT_PACKAGE;
 
@@ -23,6 +24,8 @@ public class FieldTypeExtractor {
             return FieldType.STRING;
         } else if (Collection.class.isAssignableFrom(clazz)) {
             return FieldType.COLLECTION;
+        } else if (Map.class.isAssignableFrom(clazz)) {
+            return FieldType.MAP;
         } else if (isDeepVerifiableObject(clazz)) {
             return FieldType.DEEP_VERIFIABLE;
         } else if (Object.class.isAssignableFrom(clazz)) {
