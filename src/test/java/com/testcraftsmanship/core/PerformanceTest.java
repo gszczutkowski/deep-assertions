@@ -4,6 +4,7 @@ import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.api.DeepAssertions;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +13,8 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Tag("performance")
 @Slf4j
+@Disabled
 public class PerformanceTest {
     private static final int SIZE = 1000;
 
@@ -51,6 +52,7 @@ public class PerformanceTest {
         return numbers;
     }
 
+    @Tag("performance")
     @Test
     public void performanceTest() {
         Parent parentA = new Parent();
