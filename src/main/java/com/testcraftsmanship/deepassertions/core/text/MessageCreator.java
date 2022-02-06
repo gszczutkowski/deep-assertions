@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 
 import static com.testcraftsmanship.deepassertions.core.text.LocationCreator.classNameExtractor;
 
-public class MessageCreator {
+public final class MessageCreator {
+    private MessageCreator() {
+    }
 
     public static String failMessageCreator(Object actual, Object expected, String depth) {
         if (actual == null && expected == null) {
@@ -27,7 +29,7 @@ public class MessageCreator {
             throw new IllegalArgumentException("Failure message can not be generated as passed object is null");
         } else {
             String className = object.getClass().getSimpleName();
-            if (isObjectActual){
+            if (isObjectActual) {
                 return String.format("%s<%s> - actual set has value {%s}, expected set don't have it", depth, className, object);
             } else {
                 return String.format("%s<%s> - expected set has value {%s}, actual set don't have it", depth, className, object);

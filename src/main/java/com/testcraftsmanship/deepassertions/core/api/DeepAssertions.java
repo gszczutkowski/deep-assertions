@@ -1,16 +1,18 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
-import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collection;
 
-import static com.testcraftsmanship.deepassertions.core.api.ObjectValidator.isApiVerifiableForType;
-import static com.testcraftsmanship.deepassertions.core.api.ObjectValidator.isApiVerifiableOnClassLevel;
 import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.failMessageCreator;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
@@ -18,7 +20,6 @@ import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.vari
 @Slf4j
 public class DeepAssertions {
     private AssertionCreator assertionCreator = new AssertionCreator();
-    private Config config = new Config(DeepAssertType.LOCAL);
     private List<String> deepAssertTags = new ArrayList<>();
 
     public DeepAssertions() {
@@ -63,6 +64,9 @@ public class DeepAssertions {
                 break;
             case DEEP_VERIFIABLE:
                 compareFields(actualItem, expectedItem, locationCreator);
+                break;
+            default:
+                throw new IllegalStateException("Field type not supported");
         }
     }
 
@@ -71,7 +75,7 @@ public class DeepAssertions {
         final Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields) {
-            if (!(isApiVerifiableForType(field) || isApiVerifiableOnClassLevel(clazz, field))) {
+            if (!(ObjectValidator.isApiVerifiableForType(field) || ObjectValidator.isApiVerifiableOnClassLevel(clazz, field))) {
                 log.debug("No verifying field:  " + variableInfo(clazz, field));
                 continue;
             }
@@ -95,7 +99,8 @@ public class DeepAssertions {
         }
 
         if (actualArray.size() != expectedArray.size()) {
-            assertionCreator.fail(failMessageCreator(actualArray.size(), expectedArray.size(), locationCreator.getLocation(), actualItem.getClass()));
+            assertionCreator.fail(failMessageCreator(actualArray.size(), expectedArray.size(),
+                    locationCreator.getLocation(), actualItem.getClass()));
             return;
         }
         Iterator actIterator = actualArray.iterator();
@@ -110,7 +115,8 @@ public class DeepAssertions {
         Map actualMap = (Map) actualItem;
         Map expectedMap = (Map) expectedItem;
         if (actualMap.size() != expectedMap.size()) {
-            assertionCreator.fail(failMessageCreator(actualMap.size(), expectedMap.size(), locationCreator.getLocation(), actualItem.getClass()));
+            assertionCreator.fail(failMessageCreator(actualMap.size(), expectedMap.size(),
+                    locationCreator.getLocation(), actualItem.getClass()));
             return;
         }
         for (Map.Entry entry : ((Map<?, ?>) actualItem).entrySet()) {

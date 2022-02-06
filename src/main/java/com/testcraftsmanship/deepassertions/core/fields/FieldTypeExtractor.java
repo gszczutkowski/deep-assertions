@@ -8,7 +8,10 @@ import java.util.Map;
 import static com.testcraftsmanship.deepassertions.core.config.Config.PROJECT_PACKAGE;
 
 
-public class FieldTypeExtractor {
+public final class FieldTypeExtractor {
+    private FieldTypeExtractor() {
+    }
+
     public static FieldType extractFieldType(Field field) {
         return extractFieldType(field.getType());
     }
