@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@Disabled
+@Tag("performance")
 public class PerformanceTest {
     private static final int SIZE = 1000;
 
@@ -52,7 +52,6 @@ public class PerformanceTest {
         return numbers;
     }
 
-    @Tag("performance")
     @Test
     public void performanceTest() {
         Parent parentA = new Parent();
