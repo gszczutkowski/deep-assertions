@@ -1,4 +1,4 @@
-package com.testcraftsmanship.core.api;
+package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.annotations.VerifiableExclude;

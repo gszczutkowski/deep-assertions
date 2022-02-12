@@ -1,4 +1,4 @@
-package com.testcraftsmanship.core.testclass;
+package com.testcraftsmanship.deepassertions.core.base.testclasses;
 
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import lombok.AllArgsConstructor;
@@ -33,9 +33,5 @@ public class Location {
         private String buildingName;
         private int allRoomsNumber;
         private Map<Integer, Integer> roomsPerFlor;
-    }
-
-    public static void main(String[] args) {
-
     }
 }

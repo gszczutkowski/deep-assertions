@@ -1,10 +1,9 @@
-package com.testcraftsmanship.core;
+package com.testcraftsmanship.deepassertions.core;
 
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.api.DeepAssertions;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -58,13 +57,12 @@ public class PerformanceTest {
         Parent parentB = new Parent();
         parentB.setDiff(10);
 
-        DeepAssertions deepAssertions = new DeepAssertions();
         long start = System.currentTimeMillis();
         for (int i = 0; i < 50; i++) {
             assertThatThrownBy(() -> {
-                deepAssertions.assertEquals(parentA, parentB);
+                DeepAssertions.assertThat(parentA).isEqualTo(parentB);
             }).isInstanceOf(AssertionError.class)
-                    .hasMessageContainingAll("Multiple Failures (2 failures)");
+                    .hasMessageContainingAll("Multiple Failures (4 failures)");
         }
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
@@ -99,17 +97,23 @@ public class PerformanceTest {
 
     @Verifiable
     class Parent {
-        int[] numbers;
+        int[] numbers1;
+        int[] numbers2;
         List<ChildA> children;
+        Set<String> texts;
 
         public Parent() {
-            this.numbers = numbersGenerator(SIZE);
+            this.numbers1 = numbersGenerator(SIZE);
+            this.numbers2 = numbersGenerator(SIZE);
             this.children = childrenGenerator(SIZE);
+            this.texts = new HashSet<>(namesGenerator(SIZE));
         }
 
         public void setDiff(int position) {
-            numbers[position] = 0;
+            numbers1[position] = 0;
             children.get(position).names.set(position, "Changed");
+            if (!texts.isEmpty())
+                texts.remove(texts.iterator().next());
         }
     }
 }

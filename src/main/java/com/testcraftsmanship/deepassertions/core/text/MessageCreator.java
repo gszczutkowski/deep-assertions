@@ -1,5 +1,7 @@
 package com.testcraftsmanship.deepassertions.core.text;
 
+import com.testcraftsmanship.deepassertions.core.config.Messages;
+
 import java.lang.reflect.Field;
 
 import static com.testcraftsmanship.deepassertions.core.text.LocationCreator.classNameExtractor;
@@ -8,18 +10,23 @@ public final class MessageCreator {
     private MessageCreator() {
     }
 
-    public static String failMessageCreator(Object actual, Object expected, String depth) {
+    public static String failMessageCreator(Object actual, Object expected, String depth, UpdateInfo updateInfo) {
+        if (updateInfo.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
+            expected = expected == null ? 0 : expected;
+            String elementType = extractCollectionElementType(updateInfo);
+            return String.format(Messages.DIFFERENT_NUMBER_WITH_VALUE,
+                    depth, elementType, actualNumberToMessage(actual), updateInfo.getNumbersValidationKey(), expected);
+        }
         if (actual == null && expected == null) {
             throw new IllegalArgumentException("Failure message can not be generated as both objects are null");
         } else if (actual == null || expected == null) {
             String className = actual == null ? expected.getClass().getSimpleName() : actual.getClass().getSimpleName();
-            return String.format("%s<%s> - actual object is %s but expected is %s", depth, className, actual, expected);
-
+            return String.format(Messages.DIFFERENT_VALUES, depth, className, actual, expected);
         } else if (actual.getClass() != expected.getClass()) {
-            return String.format("%s - actual object type is %s but expected object type is %s",
+            return String.format(Messages.DIFFERENT_TYPES,
                     depth, actual.getClass().getSimpleName(), expected.getClass().getSimpleName());
         } else {
-            return String.format("%s<%s> - actual object has value %s, expect to have %s",
+            return String.format(Messages.DIFFERENT_VALUES,
                     depth, actual.getClass().getSimpleName(), actual, expected);
         }
     }
@@ -27,20 +34,18 @@ public final class MessageCreator {
     public static String failMessageCreator(Object object, boolean isObjectActual, String depth) {
         if (object == null) {
             throw new IllegalArgumentException("Failure message can not be generated as passed object is null");
+        }
+        String className = object.getClass().getSimpleName();
+        if (isObjectActual) {
+            return String.format(Messages.DIFFERENCE_WITH_NO_EXPECTED_VALUE, depth, className, object);
         } else {
-            String className = object.getClass().getSimpleName();
-            if (isObjectActual) {
-                return String.format("%s<%s> - actual set has value {%s}, expected set don't have it", depth, className, object);
-            } else {
-                return String.format("%s<%s> - expected set has value {%s}, actual set don't have it", depth, className, object);
-            }
+            return String.format(Messages.DIFFERENCE_WITH_NO_ACTUAL_VALUE, depth, className, object);
         }
     }
 
-    public static String failMessageCreator(int actualSize, int expectedSize, String depth, Class clazz) {
-        String className = classNameExtractor(clazz);
-        return String.format("%s<%s> - actual object has size %d but expected to have size %s",
-                depth, className, actualSize, expectedSize);
+    public static String failMessageCreator(int actualSize, int expectedSize, String depth, UpdateInfo updateInfo) {
+        return String.format(Messages.DIFFERENT_COLLECTIONS_SIZES,
+                depth, classNameExtractor(updateInfo.getRealClass()), actualNumberToMessage(actualSize), expectedSize);
     }
 
     public static String variableInfo(Class clazz) {
@@ -49,5 +54,24 @@ public final class MessageCreator {
 
     public static String variableInfo(Class clazz, Field field) {
         return clazz.getSimpleName() + ": " + field.getType().getSimpleName() + " " + field.getName();
+    }
+
+    private static String extractCollectionElementType(UpdateInfo updateInfo) {
+        String elementType = "";
+        if (!updateInfo.getRealClass().isArray()) {
+            elementType = "<" + updateInfo.getItemClass().getSimpleName() + ">";
+        }
+        return elementType;
+    }
+
+    private static String actualNumberToMessage(Object actual) {
+        if (actual == null) {
+            return "are no items";
+        } else if (actual instanceof Number && Long.parseLong(actual.toString()) == 1) {
+            return "is 1 item";
+        } else if (actual instanceof Number) {
+            return String.format("are %s items", actual);
+        }
+        throw new IllegalArgumentException("Object should extends from Number");
     }
 }
