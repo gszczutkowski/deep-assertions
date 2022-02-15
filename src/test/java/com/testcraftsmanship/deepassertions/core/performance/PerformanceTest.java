@@ -1,4 +1,4 @@
-package com.testcraftsmanship.deepassertions.core;
+package com.testcraftsmanship.deepassertions.core.performance;
 
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.api.DeepAssertions;
@@ -14,42 +14,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @Tag("performance")
-public class PerformanceTest {
+public class PerformanceTest extends BasePerformanceTest {
     private static final int SIZE = 1000;
 
-    private static List<String> namesGenerator(int size) {
-        String temp = "Extended kindness trifling remember he confined outlived if. Assistance sentiments yet unpleasing say. Open they an busy they my such high. An active dinner wishes at unable hardly no talked on. Immediate him her resolving his favourite. Wished denote abroad at branch at.";
-        List<String> names = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            names.add(temp + i);
-        }
-        return names;
-    }
 
-    private static Map<String, Item> nameToItemGenerator(int size) {
-        String temp = "Extended kindness trifling remember he confined outlived if. Assistance sentiments yet unpleasing say. Open they an busy they my such high. An active dinner wishes at unable hardly no talked on. Immediate him her resolving his favourite. Wished denote abroad at branch at.";
-        Map<String, Item> names = new HashMap<>();
-        for (int i = 0; i < size; i++) {
-            names.put(temp + i, new Item());
-        }
-        return names;
-    }
-
-    private static List<ChildA> childrenGenerator(int size) {
-        List<ChildA> children = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            children.add(new ChildA());
-        }
-        return children;
-    }
-
-    private static int[] numbersGenerator(int size) {
-        int[] numbers = new int[size];
-        for (int i = 0; i < size; i++) {
-            numbers[i] = i;
-        }
-        return numbers;
-    }
 
     @Test
     public void performanceTest() {
@@ -58,7 +26,7 @@ public class PerformanceTest {
         parentB.setDiff(10);
 
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 40; i++) {
             assertThatThrownBy(() -> {
                 DeepAssertions.assertThat(parentA).isEqualTo(parentB);
             }).isInstanceOf(AssertionError.class)
@@ -83,17 +51,7 @@ public class PerformanceTest {
         }
     }
 
-    @Verifiable
-    @EqualsAndHashCode
-    static class Item {
-        private final String color;
-        private final int value;
 
-        public Item() {
-            this.color = "Red";
-            this.value = SIZE;
-        }
-    }
 
     @Verifiable
     class Parent {

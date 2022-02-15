@@ -3,8 +3,10 @@ package com.testcraftsmanship.deepassertions.core.api;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.Elf;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.Location;
+import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,22 +21,28 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DeepComparatorTest extends BaseTest {
-    private static final boolean IN_ORDER = false;
+    private static Config config;
+
+    @BeforeAll
+    public static void setUp() {
+        config = new Config(DeepAssertType.LOCAL);
+        config.setWithAnyOrder(false);
+    }
 
     @Test
     public void onlyMarkedAsVerifiableShouldBeChecked() {
         Elf first = new Elf("Jan", "Laura");
         Elf second = new Elf("Jan", "Tom");
-        LocationCreator locationCreator = new LocationCreator(first.getClass());
-        DeepComparator deepComparator = new DeepComparator(IN_ORDER);
+        LocationCreator locationCreator = new LocationCreator(config, first.getClass());
+        DeepComparator deepComparator = new DeepComparator(config);
         deepComparator.compare(first, second, locationCreator);
     }
 
     @ParameterizedTest
     @MethodSource("objectWithFailuresMessage")
     public void deepAssertionsShouldIndicateAllFailures(Object actual, Object expected, List<String> expectedMessages) {
-        LocationCreator locationCreator = new LocationCreator(actual.getClass());
-        DeepComparator deepComparator = new DeepComparator(IN_ORDER);
+        LocationCreator locationCreator = new LocationCreator(config, actual.getClass());
+        DeepComparator deepComparator = new DeepComparator(config);
         assertThatFunctionThrows(() -> deepComparator.compare(actual, expected, locationCreator), expectedMessages);
     }
 
@@ -70,12 +78,12 @@ public class DeepComparatorTest extends BaseTest {
                 .uuid(UUID.fromString("8f365f2d-c2be-4731-953c-4d1a9d75c0c7"))
                 .build();
 
-        LocationCreator locationCreator = new LocationCreator(locationA.getClass());
-        DeepComparator deepComparator = new DeepComparator(IN_ORDER);
+        LocationCreator locationCreator = new LocationCreator(config, locationA.getClass());
+        DeepComparator deepComparator = new DeepComparator(config);
         assertThatThrownBy(() -> deepComparator.compare(locationA, locationB, locationCreator))
                 .isInstanceOf(AssertionError.class)
                 .hasMessageContainingAll(
-                        "Multiple Failures (14 failures)",
+                        "Multiple Failures (15 failures)",
                         String.format(Messages.DIFFERENT_VALUES, "Location.city", "String", "Lublin", "Gdansk"),
                         String.format(Messages.DIFFERENT_VALUES, "Location.street", "String", "Krakowska", "Lubelska"),
                         String.format(Messages.DIFFERENT_VALUES, "Location.streetNumber", "Integer", "120", "121"),
@@ -89,6 +97,7 @@ public class DeepComparatorTest extends BaseTest {
                         String.format(Messages.DIFFERENT_VALUES, "Location.buildings(0).buildingName", "String", "Gym", "Offices"),
                         String.format(Messages.DIFFERENT_VALUES, "Location.buildings(0).allRoomsNumber", "Integer", "4", "5"),
                         String.format(Messages.DIFFERENT_COLLECTIONS_SIZES, "Location.buildings(0).roomsPerFlor()", "ImmutableMap", "are 4 items", "5"),
+                        String.format(Messages.DIFFERENT_VALUES, "Location.buildings(0).roomsPerFlor(5)", "Integer", "null", "2"),
                         String.format(Messages.DIFFERENT_VALUES, "Location.uuid", "UUID", "898496cc-2efd-47e3-8c41-76855c522fa7", "8f365f2d-c2be-4731-953c-4d1a9d75c0c7"));
 
     }

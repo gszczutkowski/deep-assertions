@@ -1,6 +1,8 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
+import com.testcraftsmanship.deepassertions.core.config.Config;
+import com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import com.testcraftsmanship.deepassertions.core.text.UpdateInfo;
@@ -17,20 +19,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Collection;
 
-import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.failMessageCreator;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
 
 @Slf4j
 public class DeepComparator {
+    private final Config config;
+    private final FieldTypeExtractor fieldTypeExtractor;
     private AssertionCreator assertionCreator;
     private List<String> deepAssertTags;
-    private boolean itemsInAnyOrder;
 
-    DeepComparator(boolean inAnyOrder) {
+
+    DeepComparator(Config config) {
+        this.config = config;
+        this.fieldTypeExtractor = new FieldTypeExtractor(config);
         this.assertionCreator = new AssertionCreator();
         this.deepAssertTags = new ArrayList<>();
-        this.itemsInAnyOrder = inAnyOrder;
     }
 
     void compare(Object actualItem, Object expectedItem, LocationCreator locationCreator) {
@@ -55,7 +59,7 @@ public class DeepComparator {
         }
         final Class clazz = actualItem.getClass();
 
-        switch (extractFieldType(clazz)) {
+        switch (fieldTypeExtractor.extractFieldType(clazz)) {
             case PRIMITIVE:
             case STRING:
             case ENUM:
@@ -107,7 +111,7 @@ public class DeepComparator {
             assertionCreator.fail(failMessageCreator(actualLength, expectedLength,
                     locationCreator.getLocation(), updateInfo));
         }
-        if (itemsInAnyOrder) {
+        if (config.isWithAnyOrder()) {
             Map<Object, Long> actualMap = new HashMap();
             Map<Object, Long> expectedMap = new HashMap();
             for (int i = 0; i < actualLength; i++) {
@@ -158,7 +162,7 @@ public class DeepComparator {
         }
         if (actualItem instanceof Set) {
             assertEqualityOfSets(actualCollection, expectedCollection, locationCreator);
-        } else if (itemsInAnyOrder) {
+        } else if (config.isWithAnyOrder()) {
             Set actualSet = new HashSet(actualCollection);
             Set expectedSet = new HashSet(expectedCollection);
             if (actualSet.size() == actualCollection.size() && expectedSet.size() == expectedCollection.size()) {
@@ -199,7 +203,6 @@ public class DeepComparator {
     private void assertEqualityOfSets(Collection actualCollection, Collection expectedCollection,
                                       LocationCreator locationCreator) {
         Iterator actIterator = actualCollection.iterator();
-        Iterator expIterator = expectedCollection.iterator();
         boolean foundDiffs = false;
         while (actIterator.hasNext()) {
             Object actItem = actIterator.next();
@@ -209,6 +212,7 @@ public class DeepComparator {
             }
         }
         if (foundDiffs) {
+            Iterator expIterator = expectedCollection.iterator();
             while (expIterator.hasNext()) {
                 Object expItem = expIterator.next();
                 if (!actualCollection.contains(expItem)) {
@@ -225,7 +229,6 @@ public class DeepComparator {
         if (actualMap.size() != expectedMap.size() && !updateInfo.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
             assertionCreator.fail(failMessageCreator(actualMap.size(), expectedMap.size(),
                     locationCreator.getLocation(), updateInfo));
-            return;
         }
         for (Map.Entry entry : ((Map<?, ?>) actualItem).entrySet()) {
             updateInfo.setNumbersValidationKey(entry.getKey());

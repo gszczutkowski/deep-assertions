@@ -1,21 +1,25 @@
 package com.testcraftsmanship.deepassertions.core.text;
 
+import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.fields.FieldType;
+import com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor;
 
 import java.lang.reflect.Field;
 
 import static com.testcraftsmanship.deepassertions.core.fields.FieldType.COLLECTION;
 import static com.testcraftsmanship.deepassertions.core.fields.FieldType.MAP;
-import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
 
 public class LocationCreator {
+    private final FieldTypeExtractor fieldTypeExtractor;
     private String location;
 
-    public LocationCreator(Class rootClass) {
+    public LocationCreator(Config config, Class rootClass) {
+        this.fieldTypeExtractor = new FieldTypeExtractor(config);
         this.location = createLocation(rootClass);
     }
 
-    private LocationCreator(String fullPath) {
+    private LocationCreator(FieldTypeExtractor fieldTypeExtractor, String fullPath) {
+        this.fieldTypeExtractor = fieldTypeExtractor;
         this.location = fullPath;
     }
 
@@ -28,14 +32,14 @@ public class LocationCreator {
     }
 
     public LocationCreator locationOfField(Field field) {
-        return new LocationCreator(location + "." + createFieldLocation(field));
+        return new LocationCreator(this.fieldTypeExtractor, location + "." + createFieldLocation(field));
     }
 
     public LocationCreator locationOnPosition(Object position) {
         if (location.endsWith("()")) {
-            return new LocationCreator(location.replace("()", "(" + position + ")"));
+            return new LocationCreator(this.fieldTypeExtractor, location.replace("()", "(" + position + ")"));
         } else if (location.endsWith("[]")) {
-            return new LocationCreator(location.replace("[]", "[" + position + "]"));
+            return new LocationCreator(this.fieldTypeExtractor, location.replace("[]", "[" + position + "]"));
         } else {
             throw new IllegalStateException("Unable to set position for current object: " + location);
         }
@@ -47,7 +51,7 @@ public class LocationCreator {
 
     private String createLocation(Class clazz) {
         String className = classNameExtractor(clazz);
-        FieldType type = extractFieldType(clazz);
+        FieldType type = fieldTypeExtractor.extractFieldType(clazz);
         if (type.equals(MAP) || type.equals(COLLECTION)) {
             return className + "()";
         }
@@ -55,7 +59,7 @@ public class LocationCreator {
     }
 
     private String createFieldLocation(Field field) {
-        switch (extractFieldType(field.getType())) {
+        switch (fieldTypeExtractor.extractFieldType(field.getType())) {
             case MAP:
             case COLLECTION:
                 return field.getName() + "()";

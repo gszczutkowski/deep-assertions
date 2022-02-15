@@ -1,22 +1,18 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
+import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 public final class DeepAssertions {
-    private List<String> deepAssertTags;
+    private final Object actualItem;
     private DeepComparator deepComparator;
-    private boolean withAnyOrder = false;
-    private Object actualItem;
+    private Config config;
 
     private DeepAssertions(Object actualItem) {
-        this.deepAssertTags = new ArrayList<>();
-        this.deepAssertTags.add("item");
         this.actualItem = actualItem;
+        this.config = new Config(DeepAssertType.LOCAL);
     }
 
     public static DeepAssertions assertThat(Object actual) {
@@ -24,13 +20,17 @@ public final class DeepAssertions {
     }
 
     public void isEqualTo(Object expected) {
-        this.deepComparator = new DeepComparator(withAnyOrder);
-        deepComparator.compare(actualItem, expected, new LocationCreator(actualItem.getClass()));
+        this.deepComparator = new DeepComparator(config);
+        deepComparator.compare(actualItem, expected, new LocationCreator(config, actualItem.getClass()));
     }
 
     public DeepAssertions withAnyOrder() {
-        withAnyOrder = true;
+        config.setWithAnyOrder(true);
         return this;
     }
 
+    public DeepAssertions withPackages(String... packages) {
+        config.setDeepVerifiablePackages(packages);
+        return this;
+    }
 }
