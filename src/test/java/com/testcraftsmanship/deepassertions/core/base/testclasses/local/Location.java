@@ -1,4 +1,4 @@
-package com.testcraftsmanship.core.testclass;
+package com.testcraftsmanship.deepassertions.core.base.testclasses.local;
 
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,6 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @Builder
-@Verifiable(type = {"user"})
 public class Location {
     private String city;
     private String street;
@@ -28,14 +27,9 @@ public class Location {
     @Getter
     @AllArgsConstructor
     @Builder
-    @Verifiable(type = {"user"})
     public static class Building {
         private String buildingName;
         private int allRoomsNumber;
         private Map<Integer, Integer> roomsPerFlor;
-    }
-
-    public static void main(String[] args) {
-
     }
 }
