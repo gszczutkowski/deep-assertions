@@ -4,6 +4,8 @@ import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.testcraftsmanship.deepassertions.core.config.Config.DEFAULT_DEEP_ASSERT_TYPE;
+
 @Slf4j
 public final class DeepAssertions {
     private final Object actualItem;
@@ -12,7 +14,7 @@ public final class DeepAssertions {
 
     private DeepAssertions(Object actualItem) {
         this.actualItem = actualItem;
-        this.config = new Config(DeepAssertType.LOCAL);
+        this.config = new Config();
     }
 
     public static DeepAssertions assertThat(Object actual) {
@@ -21,7 +23,7 @@ public final class DeepAssertions {
 
     public void isEqualTo(Object expected) {
         this.deepComparator = new DeepComparator(config);
-        deepComparator.compare(actualItem, expected, new LocationCreator(config, actualItem.getClass()));
+        deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(config, actualItem.getClass()));
     }
 
     public DeepAssertions withAnyOrder() {
@@ -30,7 +32,18 @@ public final class DeepAssertions {
     }
 
     public DeepAssertions withPackages(String... packages) {
-        config.setDeepVerifiablePackages(packages);
-        return this;
+        if (DEFAULT_DEEP_ASSERT_TYPE.equals(config.getDeepAssertType())) {
+            config.setDeepVerifiablePackages(packages);
+            return this;
+        }
+        throw new IllegalStateException("You can use default assertion type or set one of: LOCAL or DEFINED");
+    }
+
+    public DeepAssertions withAnnotationTags(String... tags) {
+        if (DEFAULT_DEEP_ASSERT_TYPE.equals(config.getDeepAssertType())) {
+            config.setDeepAssertTags(tags);
+            return this;
+        }
+        throw new IllegalStateException("You can use default assertion type or set one of: LOCAL or ANNOTATED");
     }
 }

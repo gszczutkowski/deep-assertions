@@ -1,5 +1,6 @@
 package com.testcraftsmanship.deepassertions.core.performance;
 
+import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiable;
 import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.api.DeepAssertions;
 import lombok.EqualsAndHashCode;
@@ -38,7 +39,7 @@ public class PerformanceTest extends BasePerformanceTest {
         assertThat(timeElapsed).isLessThan(60000);
     }
 
-    @Verifiable
+    @DeepVerifiable
     static class ChildA {
         List<String> names;
         Map<String, Item> nameToItem;
@@ -53,7 +54,7 @@ public class PerformanceTest extends BasePerformanceTest {
 
 
 
-    @Verifiable
+    @DeepVerifiable
     class Parent {
         int[] numbers1;
         int[] numbers2;

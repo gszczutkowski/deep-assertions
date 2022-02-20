@@ -1,11 +1,11 @@
-package com.testcraftsmanship.deepassertions.core.base.testclasses;
+package com.testcraftsmanship.deepassertions.core.base.testclasses.annotated;
 
-import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public class Elf {
-    @Verifiable
     private String firstName;
     private String lastName;
 

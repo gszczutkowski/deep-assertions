@@ -1,7 +1,7 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
-import com.testcraftsmanship.deepassertions.core.base.testclasses.Elf;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

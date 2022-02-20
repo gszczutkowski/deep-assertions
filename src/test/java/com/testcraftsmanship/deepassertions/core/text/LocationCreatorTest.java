@@ -18,7 +18,8 @@ public class LocationCreatorTest {
 
     @BeforeAll
     public static void setUp() {
-        config = new Config(DeepAssertType.LOCAL);
+        config = new Config();
+        config.setDeepVerifiablePackages("com.testcraftsmanship");
         config.setWithAnyOrder(false);
     }
 

@@ -1,8 +1,8 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
-import com.testcraftsmanship.deepassertions.core.base.testclasses.Elf;
-import com.testcraftsmanship.deepassertions.core.base.testclasses.Location;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Location;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
@@ -12,30 +12,20 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DeepComparatorTest extends BaseTest {
+public class DeepComparatorLocalTest extends BaseTest {
     private static Config config;
+
 
     @BeforeAll
     public static void setUp() {
-        config = new Config(DeepAssertType.LOCAL);
+        config = new Config();
+        config.setDeepVerifiablePackages("com.testcraftsmanship");
         config.setWithAnyOrder(false);
-    }
-
-    @Test
-    public void onlyMarkedAsVerifiableShouldBeChecked() {
-        Elf first = new Elf("Jan", "Laura");
-        Elf second = new Elf("Jan", "Tom");
-        LocationCreator locationCreator = new LocationCreator(config, first.getClass());
-        DeepComparator deepComparator = new DeepComparator(config);
-        deepComparator.compare(first, second, locationCreator);
     }
 
     @ParameterizedTest
@@ -43,7 +33,7 @@ public class DeepComparatorTest extends BaseTest {
     public void deepAssertionsShouldIndicateAllFailures(Object actual, Object expected, List<String> expectedMessages) {
         LocationCreator locationCreator = new LocationCreator(config, actual.getClass());
         DeepComparator deepComparator = new DeepComparator(config);
-        assertThatFunctionThrows(() -> deepComparator.compare(actual, expected, locationCreator), expectedMessages);
+        assertThatFunctionThrows(() -> deepComparator.compare(actual, expected, actual.getClass(), locationCreator), expectedMessages);
     }
 
     @Test
@@ -80,7 +70,7 @@ public class DeepComparatorTest extends BaseTest {
 
         LocationCreator locationCreator = new LocationCreator(config, locationA.getClass());
         DeepComparator deepComparator = new DeepComparator(config);
-        assertThatThrownBy(() -> deepComparator.compare(locationA, locationB, locationCreator))
+        assertThatThrownBy(() -> deepComparator.compare(locationA, locationB, locationA.getClass(), locationCreator))
                 .isInstanceOf(AssertionError.class)
                 .hasMessageContainingAll(
                         "Multiple Failures (15 failures)",
@@ -108,8 +98,9 @@ public class DeepComparatorTest extends BaseTest {
                         List.of("Multiple Failures (1 failure)",
                                 String.format(Messages.DIFFERENT_VALUES, "Elf.firstName", "String", "Ascal", "Arlen"))),
                 Arguments.of(List.of(new Elf("Raibyn", "Caimaris")), List.of(new Elf("Aymar", "Heleric")),
-                        List.of("Multiple Failures (1 failure)",
-                                String.format(Messages.DIFFERENT_VALUES, "List(0).firstName", "String", "Raibyn", "Aymar"))),
+                        List.of("Multiple Failures (2 failures)",
+                                String.format(Messages.DIFFERENT_VALUES, "ImmutableList(0).lastName", "String", "Caimaris", "Heleric"),
+                                String.format(Messages.DIFFERENT_VALUES, "ImmutableList(0).firstName", "String", "Raibyn", "Aymar"))),
                 Arguments.of(new Elf[]{new Elf("Iyrandrar", "Wysacan"), new Elf("Iyrandrar", "Wysacan")}, new Elf[]{new Elf("Falael", "Wysacan"), new Elf("Falael", "Wysacan")},
                         List.of("Multiple Failures (2 failures)",
                                 String.format(Messages.DIFFERENT_VALUES, "Elf[0].firstName", "String", "Iyrandrar", "Falael"),
