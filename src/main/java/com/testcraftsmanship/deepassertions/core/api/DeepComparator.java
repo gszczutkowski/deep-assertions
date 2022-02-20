@@ -27,14 +27,12 @@ public class DeepComparator {
     private final Config config;
     private final FieldTypeExtractor fieldTypeExtractor;
     private final AssertionCreator assertionCreator;
-    private final List<String> deepAssertTags;
 
 
     DeepComparator(Config config) {
         this.config = config;
         this.fieldTypeExtractor = new FieldTypeExtractor(config);
         this.assertionCreator = new AssertionCreator();
-        this.deepAssertTags = new ArrayList<>();
     }
 
     void compare(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
