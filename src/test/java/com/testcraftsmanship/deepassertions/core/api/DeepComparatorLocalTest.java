@@ -32,7 +32,7 @@ public class DeepComparatorLocalTest extends BaseTest {
     @MethodSource("objectWithFailuresMessage")
     public void deepAssertionsShouldIndicateAllFailures(Object actual, Object expected, List<String> expectedMessages) {
         LocationCreator locationCreator = new LocationCreator(config, actual.getClass());
-        DeepComparator deepComparator = new DeepComparator(config);
+        DeepComparator deepComparator = new LocalDeepComparator(config);
         assertThatFunctionThrows(() -> deepComparator.compare(actual, expected, actual.getClass(), locationCreator), expectedMessages);
     }
 
@@ -69,7 +69,7 @@ public class DeepComparatorLocalTest extends BaseTest {
                 .build();
 
         LocationCreator locationCreator = new LocationCreator(config, locationA.getClass());
-        DeepComparator deepComparator = new DeepComparator(config);
+        DeepComparator deepComparator = new LocalDeepComparator(config);
         assertThatThrownBy(() -> deepComparator.compare(locationA, locationB, locationA.getClass(), locationCreator))
                 .isInstanceOf(AssertionError.class)
                 .hasMessageContainingAll(

@@ -31,7 +31,7 @@ public class DeepComparatorAnnotatedTest extends BaseTest {
         Mage actualMage = new Mage("Gandalf", 10, new Staff(true, 5));
         Mage expectedMage = new Mage("Dumbledore", 10,  new Staff(false, 5));
         LocationCreator locationCreator = new LocationCreator(config, Mage.class);
-        DeepComparator deepComparator = new DeepComparator(config);
+        DeepComparator deepComparator = new AnnotatedDeepComparator(config);
         assertThatFunctionThrows(() -> deepComparator.compare(actualMage, expectedMage, Mage.class, locationCreator),
                 List.of("Multiple Failures (1 failure)",
                         "Mage.name<String> - actual object has value {Gandalf}, expect to have {Dumbledore}"));
@@ -44,7 +44,7 @@ public class DeepComparatorAnnotatedTest extends BaseTest {
         ElfWarrior expectedElf = new ElfWarrior("Ailuin", "Keanan",
                 new Weapon("Bow", 100, 5, new Material("Wood", 2)));
         LocationCreator locationCreator = new LocationCreator(config, Elf.class);
-        DeepComparator deepComparator = new DeepComparator(config);
+        DeepComparator deepComparator = new AnnotatedDeepComparator(config);
         assertThatFunctionThrows(() -> deepComparator.compare(actualElf, expectedElf, Elf.class, locationCreator),
                 List.of("Multiple Failures (4 failures)",
                         "Elf.firstName<String> - actual object has value {Miirphys}, expect to have {Ailuin}",
@@ -64,7 +64,7 @@ public class DeepComparatorAnnotatedTest extends BaseTest {
         actualClassA.classB.value = "actual";
         actualClassA.classB.classC.value = "actual";
         LocationCreator locationCreator = new LocationCreator(config, expectedClassA.getClass());
-        DeepComparator deepComparator = new DeepComparator(config);
+        DeepComparator deepComparator = new AnnotatedDeepComparator(config);
         assertThatFunctionThrows(() -> deepComparator.compare(expectedClassA, actualClassA, expectedClassA.getClass(), locationCreator),
                 List.of("Multiple Failures (2 failures)",
                         "ClassA.value<String> - actual object has value {A expected}, expect to have {A actual}",

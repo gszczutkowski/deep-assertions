@@ -6,6 +6,8 @@ import com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import com.testcraftsmanship.deepassertions.core.text.UpdateInfo;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
@@ -23,8 +25,10 @@ import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.fail
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
 
 @Slf4j
-public class DeepComparator {
+public abstract class DeepComparator {
+    @Getter(value = AccessLevel.PROTECTED)
     private final Config config;
+    @Getter(value = AccessLevel.PROTECTED)
     private final FieldTypeExtractor fieldTypeExtractor;
     private final AssertionCreator assertionCreator;
 
@@ -39,6 +43,10 @@ public class DeepComparator {
         deepCompare(actualItem, expectedItem, parentClass, locationCreator);
         assertionCreator.performAssertions();
     }
+
+    abstract boolean isDeepVerifiableField(Class parentClass, Field field);
+
+    abstract boolean isDeepVerifiableField(Class parentClass, Class fieldClass);
 
     private void deepCompare(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
         Class currentClass = actualItem != null ? actualItem.getClass() : expectedItem.getClass();
@@ -57,17 +65,15 @@ public class DeepComparator {
             assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), updateInfo));
             return;
         }
-        final Class fieldClazz = actualItem.getClass();
+        final Class fieldClass = actualItem.getClass();
 
-        switch (fieldTypeExtractor.extractFieldType(fieldClazz)) {
+        switch (fieldTypeExtractor.extractFieldType(fieldClass)) {
             case PRIMITIVE:
             case STRING:
             case ENUM:
             case OBJECT:
-                if (isProjectPackageClass(fieldClazz)
-                        && (isDeepVerifiableField(parentClass, fieldClazz) || locationCreator.getLevel() == 1)) {
-                    parentClass = fieldClazz;
-                    compareFields(actualItem, expectedItem, parentClass, locationCreator);
+                if (isDeepVerifiableObject(parentClass, fieldClass, locationCreator)) {
+                    compareFields(actualItem, expectedItem, fieldClass, locationCreator);
                 } else {
                     log.debug("No deep verifying field:  " + locationCreator.getLocation());
                     if (!actualItem.equals(expectedItem)) {
@@ -91,7 +97,7 @@ public class DeepComparator {
     }
 
     private void compareFields(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
-        final List<Field> fields = extractFieldsFields(parentClass, new ArrayList<>());
+        final List<Field> fields = extractFieldsFromClassAndSuperClass(parentClass, new ArrayList<>());
 
         for (Field field : fields) {
             field.setAccessible(true);
@@ -247,13 +253,18 @@ public class DeepComparator {
         }
     }
 
-    private List<Field> extractFieldsFields(Class parentClass, List<Field> fieldsList) {
+    private boolean isDeepVerifiableObject(Class parentClass, Class fieldClass, LocationCreator locationCreator) {
+        return isProjectPackageClass(fieldClass)
+                 && (isDeepVerifiableField(parentClass, fieldClass) || locationCreator.getLevel() == 1);
+    }
+
+    private List<Field> extractFieldsFromClassAndSuperClass(Class parentClass, List<Field> fieldsList) {
         fieldsList.addAll(List.of(parentClass.getDeclaredFields()));
         Class superClass = parentClass.getSuperclass();
         if (superClass.equals(Object.class)) {
             return fieldsList;
         } else {
-            return extractFieldsFields(superClass, fieldsList);
+            return extractFieldsFromClassAndSuperClass(superClass, fieldsList);
         }
     }
 
@@ -280,20 +291,5 @@ public class DeepComparator {
         return config.getDeepVerifiablePackages().stream().anyMatch(definedPackage -> clazz.getName().contains(definedPackage));
     }
 
-    private boolean isDeepVerifiableField(Class parentClass, Class fieldClass) {
-        if (DeepAssertType.LOCAL.equals(config.getDeepAssertType())) {
-            return fieldTypeExtractor.isDeepVerifiableClass(fieldClass);
-        }
-        return fieldTypeExtractor.isDeepVerifiableClass(parentClass)
-                || fieldTypeExtractor.isDeepVerifiableClass(fieldClass);
-    }
-
-    private boolean isDeepVerifiableField(Class parentClass, Field field) {
-        if (DeepAssertType.LOCAL.equals(config.getDeepAssertType())) {
-            return fieldTypeExtractor.isDeepVerifiableField(field);
-        }
-        return fieldTypeExtractor.isDeepVerifiableClass(parentClass)
-                || fieldTypeExtractor.isDeepVerifiableField(field);
-    }
 
 }

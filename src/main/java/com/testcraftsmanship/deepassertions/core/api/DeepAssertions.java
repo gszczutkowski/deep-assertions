@@ -22,7 +22,7 @@ public final class DeepAssertions {
     }
 
     public void isEqualTo(Object expected) {
-        this.deepComparator = new DeepComparator(config);
+        this.deepComparator = getComparator(config);
         deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(config, actualItem.getClass()));
     }
 
@@ -45,5 +45,17 @@ public final class DeepAssertions {
             return this;
         }
         throw new IllegalStateException("You can use default assertion type or set one of: LOCAL or ANNOTATED");
+    }
+
+    private DeepComparator getComparator(Config config) {
+        if (DeepAssertType.LOCAL.equals(config.getDeepAssertType())) {
+            return new LocalDeepComparator(config);
+        } else if (DeepAssertType.ANNOTATED.equals(config.getDeepAssertType())) {
+            return new AnnotatedDeepComparator(config);
+        } else if (DeepAssertType.DEFINED.equals(config.getDeepAssertType())) {
+            return new DefinedDeepComparator(config);
+        } else {
+            throw new IllegalStateException("There is no matching comparator");
+        }
     }
 }
