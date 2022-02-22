@@ -46,8 +46,6 @@ public abstract class DeepComparator {
 
     abstract boolean isDeepVerifiableField(Class parentClass, Field field);
 
-    abstract boolean isDeepVerifiableField(Class parentClass, Class fieldClass);
-
     private void deepCompare(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
         Class currentClass = actualItem != null ? actualItem.getClass() : expectedItem.getClass();
         UpdateInfo updateInfo = new UpdateInfo(currentClass);
@@ -72,10 +70,10 @@ public abstract class DeepComparator {
             case STRING:
             case ENUM:
             case OBJECT:
-                if (isDeepVerifiableObject(parentClass, fieldClass, locationCreator)) {
+                if (isProjectPackageClass(fieldClass)) {
                     compareFields(actualItem, expectedItem, fieldClass, locationCreator);
                 } else {
-                    log.debug("No deep verifying field:  " + locationCreator.getLocation());
+                    log.debug("No deep verification of the field:  " + locationCreator.getLocation());
                     if (!actualItem.equals(expectedItem)) {
                         assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
                                 locationCreator.getLocation(), updateInfo));
@@ -92,7 +90,11 @@ public abstract class DeepComparator {
                 assertEqualityOfArrayItems(actualItem, expectedItem, parentClass, locationCreator);
                 break;
             default:
-                throw new IllegalStateException("Field type not supported");
+                log.warn("No deep verification of the field:  " + locationCreator.getLocation());
+                if (!actualItem.equals(expectedItem)) {
+                    assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
+                            locationCreator.getLocation(), updateInfo));
+                }
         }
     }
 
@@ -107,7 +109,7 @@ public abstract class DeepComparator {
             if (isDeepVerifiableField(parentClass, field)) {
                 deepCompare(actualObj, expectedObj, parentClass, locationCreator.locationOfField(field));
             } else {
-                log.debug("No deep verifying field:  " + variableInfo(parentClass, field));
+                log.debug("No deep verification of the field:  " + variableInfo(parentClass, field));
                 if (!actualObj.equals(expectedObj)) {
                     UpdateInfo updateInfo = new UpdateInfo(actualObj.getClass());
                     assertionCreator.fail(failMessageCreator(actualObj, expectedObj,
@@ -253,11 +255,6 @@ public abstract class DeepComparator {
         }
     }
 
-    private boolean isDeepVerifiableObject(Class parentClass, Class fieldClass, LocationCreator locationCreator) {
-        return isProjectPackageClass(fieldClass)
-                 && (isDeepVerifiableField(parentClass, fieldClass) || locationCreator.getLevel() == 1);
-    }
-
     private List<Field> extractFieldsFromClassAndSuperClass(Class parentClass, List<Field> fieldsList) {
         fieldsList.addAll(List.of(parentClass.getDeclaredFields()));
         Class superClass = parentClass.getSuperclass();
@@ -290,6 +287,4 @@ public abstract class DeepComparator {
     private boolean isProjectPackageClass(Class clazz) {
         return config.getDeepVerifiablePackages().stream().anyMatch(definedPackage -> clazz.getName().contains(definedPackage));
     }
-
-
 }

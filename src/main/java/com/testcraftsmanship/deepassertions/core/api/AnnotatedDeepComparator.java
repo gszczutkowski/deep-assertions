@@ -18,11 +18,6 @@ public class AnnotatedDeepComparator extends DeepComparator {
         return isDeepVerifiable(parentClass, field);
     }
 
-    @Override
-    boolean isDeepVerifiableField(Class parentClass, Class fieldClass) {
-        return isDeepVerifiable(parentClass, fieldClass);
-    }
-
     private boolean isDeepVerifiable(AnnotatedElement parentClass, AnnotatedElement fieldClass) {
         return parentClass.isAnnotationPresent(DeepVerifiable.class) && !fieldClass.isAnnotationPresent(DeepVerifiableExclude.class)
                 || fieldClass.isAnnotationPresent(DeepVerifiable.class);

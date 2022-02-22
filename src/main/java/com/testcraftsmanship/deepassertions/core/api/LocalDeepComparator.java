@@ -20,11 +20,6 @@ public class LocalDeepComparator extends DeepComparator {
         return isDeepVerifiableClass(parentClass) && isDeepVerifiableField(field);
     }
 
-    @Override
-    boolean isDeepVerifiableField(Class parentClass, Class fieldClass) {
-        return true;
-    }
-
     private boolean isDeepVerifiableClass(Class clazz) {
         return getConfig().getDeepVerifiablePackages().stream()
                 .anyMatch(packageName -> clazz.getPackage().toString().contains(packageName));

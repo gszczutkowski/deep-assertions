@@ -21,12 +21,6 @@ public class DefinedDeepComparator extends DeepComparator {
                 || isDeepVerifiableField(field);
     }
 
-    @Override
-    boolean isDeepVerifiableField(Class parentClass, Class fieldClass) {
-        throw new RuntimeException("Not implemented yet");
-    }
-
-
     private boolean isDeepVerifiableClass(Class clazz) {
         return verifiableWithDefinedAssertType(clazz);
     }
