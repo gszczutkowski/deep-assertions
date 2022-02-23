@@ -2,7 +2,6 @@ package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
-import com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import com.testcraftsmanship.deepassertions.core.text.UpdateInfo;
@@ -21,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Collection;
 
+import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.failMessageCreator;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
 
@@ -29,13 +29,11 @@ public abstract class DeepComparator {
     @Getter(value = AccessLevel.PROTECTED)
     private final Config config;
     @Getter(value = AccessLevel.PROTECTED)
-    private final FieldTypeExtractor fieldTypeExtractor;
     private final AssertionCreator assertionCreator;
 
 
     DeepComparator(Config config) {
         this.config = config;
-        this.fieldTypeExtractor = new FieldTypeExtractor(config);
         this.assertionCreator = new AssertionCreator();
     }
 
@@ -65,7 +63,7 @@ public abstract class DeepComparator {
         }
         final Class fieldClass = actualItem.getClass();
 
-        switch (fieldTypeExtractor.extractFieldType(fieldClass)) {
+        switch (extractFieldType(fieldClass)) {
             case PRIMITIVE:
             case STRING:
             case ENUM:

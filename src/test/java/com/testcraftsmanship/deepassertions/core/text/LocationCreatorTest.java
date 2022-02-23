@@ -33,7 +33,7 @@ public class LocationCreatorTest {
     @ParameterizedTest
     @MethodSource("objectWithFieldToLocation")
     public void classNameShouldBeExtractedCorrectly(Object rootObject, Field field, String expectedLocation) {
-        LocationCreator locationCreator = new LocationCreator(config, rootObject.getClass());
+        LocationCreator locationCreator = new LocationCreator(rootObject.getClass());
         String actualLocation = locationCreator.locationOfField(field).getLocation();
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }

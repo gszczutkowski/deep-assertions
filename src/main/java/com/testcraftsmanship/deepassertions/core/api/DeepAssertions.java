@@ -22,8 +22,8 @@ public final class DeepAssertions {
     }
 
     public void isEqualTo(Object expected) {
-        this.deepComparator = getComparator(config);
-        deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(config, actualItem.getClass()));
+        this.deepComparator = getComparator();
+        deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(actualItem.getClass()));
     }
 
     public DeepAssertions withAnyOrder() {
@@ -47,7 +47,7 @@ public final class DeepAssertions {
         throw new IllegalStateException("You can use default assertion type or set one of: LOCAL or ANNOTATED");
     }
 
-    private DeepComparator getComparator(Config config) {
+    private DeepComparator getComparator() {
         if (DeepAssertType.LOCAL.equals(config.getDeepAssertType())) {
             return new LocalDeepComparator(config);
         } else if (DeepAssertType.ANNOTATED.equals(config.getDeepAssertType())) {

@@ -1,21 +1,16 @@
 package com.testcraftsmanship.deepassertions.core.fields;
 
 
-import com.testcraftsmanship.deepassertions.core.config.Config;
-
 import java.util.Collection;
 import java.util.Map;
 
 
-public class FieldTypeExtractor {
+public final class FieldTypeExtractor {
 
-    private final Config config;
-
-    public FieldTypeExtractor(Config config) {
-        this.config = config;
+    private FieldTypeExtractor() {
     }
 
-    public FieldType extractFieldType(Class fieldClazz) {
+    public static FieldType extractFieldType(Class fieldClazz) {
         if (fieldClazz.isPrimitive()) {
             return FieldType.PRIMITIVE;
         } else if (fieldClazz.isArray()) {

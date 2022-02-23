@@ -18,8 +18,8 @@ public class AnnotatedDeepComparator extends DeepComparator {
         return isDeepVerifiable(parentClass, field);
     }
 
-    private boolean isDeepVerifiable(AnnotatedElement parentClass, AnnotatedElement fieldClass) {
-        return parentClass.isAnnotationPresent(DeepVerifiable.class) && !fieldClass.isAnnotationPresent(DeepVerifiableExclude.class)
-                || fieldClass.isAnnotationPresent(DeepVerifiable.class);
+    private boolean isDeepVerifiable(AnnotatedElement parentClass, Field field) {
+        return parentClass.isAnnotationPresent(DeepVerifiable.class) && !field.isAnnotationPresent(DeepVerifiableExclude.class)
+                || field.isAnnotationPresent(DeepVerifiable.class);
     }
 }
