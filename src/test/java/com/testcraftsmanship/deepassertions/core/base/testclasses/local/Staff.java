@@ -21,4 +21,9 @@ public class Staff {
     public int hashCode() {
         return Objects.hash(power);
     }
+
+    @Override
+    public String toString() {
+        return twoHanded ? "Two-handed staff with power " + power : "Single-handed staff with power " + power;
+    }
 }

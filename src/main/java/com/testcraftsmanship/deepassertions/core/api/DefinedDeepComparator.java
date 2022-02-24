@@ -16,15 +16,14 @@ public class DefinedDeepComparator extends DeepComparator {
     }
 
     @Override
-    boolean isDeepVerifiableField(Class parentClass, Field field) {
+    <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field) {
         return isDeepVerifiableClass(parentClass) && !field.isAnnotationPresent(DeepVerifiableExclude.class)
                 || isDeepVerifiableField(field);
     }
 
-    private boolean isDeepVerifiableClass(Class clazz) {
+    private <T> boolean isDeepVerifiableClass(Class<T> clazz) {
         return verifiableWithDefinedAssertType(clazz);
     }
-
 
     private boolean isDeepVerifiableField(Field field) {
         return verifiableWithDefinedAssertType(field)
@@ -36,7 +35,7 @@ public class DefinedDeepComparator extends DeepComparator {
     private boolean verifiableWithDefinedAssertType(AnnotatedElement clazz) {
         if (clazz.isAnnotationPresent(DeepVerifiable.class) && getConfig().getDeepAssertTags() != null) {
             return Arrays
-                    .stream(((DeepVerifiable) clazz.getAnnotation(DeepVerifiable.class)).tags())
+                    .stream(clazz.getAnnotation(DeepVerifiable.class).tags())
                     .anyMatch(tag -> getConfig().getDeepAssertTags().contains(tag));
         }
         return false;

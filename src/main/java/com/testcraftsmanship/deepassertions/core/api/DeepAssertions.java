@@ -9,8 +9,7 @@ import static com.testcraftsmanship.deepassertions.core.config.Config.DEFAULT_DE
 @Slf4j
 public final class DeepAssertions {
     private final Object actualItem;
-    private DeepComparator deepComparator;
-    private Config config;
+    private final Config config;
 
     private DeepAssertions(Object actualItem) {
         this.actualItem = actualItem;
@@ -22,8 +21,7 @@ public final class DeepAssertions {
     }
 
     public void isEqualTo(Object expected) {
-        this.deepComparator = getComparator();
-        deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(actualItem.getClass()));
+        getComparator().compare(actualItem, expected, expected.getClass(), new LocationCreator(actualItem.getClass()));
     }
 
     public DeepAssertions withAnyOrder() {

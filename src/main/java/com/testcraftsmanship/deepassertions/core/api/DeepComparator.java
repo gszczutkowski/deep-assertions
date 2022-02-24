@@ -2,9 +2,9 @@ package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
+import com.testcraftsmanship.deepassertions.core.text.ActualObjectState;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
-import com.testcraftsmanship.deepassertions.core.text.UpdateInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,31 +37,55 @@ public abstract class DeepComparator {
         this.assertionCreator = new AssertionCreator();
     }
 
-    void compare(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
+    <T> void compare(Object actualItem, Object expectedItem, Class<T> parentClass, LocationCreator locationCreator) {
         deepCompare(actualItem, expectedItem, parentClass, locationCreator);
         assertionCreator.performAssertions();
     }
 
-    abstract boolean isDeepVerifiableField(Class parentClass, Field field);
+    abstract <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field);
 
-    private void deepCompare(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
-        Class currentClass = actualItem != null ? actualItem.getClass() : expectedItem.getClass();
-        UpdateInfo updateInfo = new UpdateInfo(currentClass);
-        deepCompare(actualItem, expectedItem, parentClass, locationCreator, updateInfo);
-    }
-
-    private void deepCompare(Object actualItem, Object expectedItem, Class parentClass,
-                             LocationCreator locationCreator, UpdateInfo updateInfo) {
+    private <T> void deepCompare(Object actualItem,
+                                 Object expectedItem,
+                                 Class<T> parentClass,
+                                 LocationCreator locationCreator) {
         if (actualItem == null && expectedItem == null) {
             return;
         } else if (actualItem == null || expectedItem == null) {
-            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), updateInfo));
+            Class<?> currentClass = actualItem != null ? actualItem.getClass() : expectedItem.getClass();
+            ActualObjectState actualObjectState = new ActualObjectState(currentClass);
+            assertionCreator
+                    .fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState));
             return;
         } else if (actualItem.getClass() != expectedItem.getClass()) {
-            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), updateInfo));
+            ActualObjectState actualObjectState = new ActualObjectState(actualItem.getClass());
+            assertionCreator
+                    .fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState));
             return;
         }
-        final Class fieldClass = actualItem.getClass();
+        compareAccordingToObjectType(actualItem, expectedItem, parentClass,
+                locationCreator, new ActualObjectState(actualItem.getClass()));
+    }
+
+    private <T> void deepCompare(Object actualItem, Object expectedItem, Class<T> parentClass,
+                                 LocationCreator locationCreator, ActualObjectState actualObjectState) {
+        if (actualItem == null && expectedItem == null) {
+            return;
+        } else if (actualItem == null || expectedItem == null) {
+            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState));
+            return;
+        } else if (actualItem.getClass() != expectedItem.getClass()) {
+            assertionCreator.fail(failMessageCreator(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState));
+            return;
+        }
+        compareAccordingToObjectType(actualItem, expectedItem, parentClass, locationCreator, actualObjectState);
+    }
+
+    private <T> void compareAccordingToObjectType(Object actualItem,
+                                                  Object expectedItem,
+                                                  Class<T> parentClass,
+                                                  LocationCreator locationCreator,
+                                                  ActualObjectState actualObjectState) {
+        final Class<?> fieldClass = actualItem.getClass();
 
         switch (extractFieldType(fieldClass)) {
             case PRIMITIVE:
@@ -74,15 +98,15 @@ public abstract class DeepComparator {
                     log.debug("No deep verification of the field:  " + locationCreator.getLocation());
                     if (!actualItem.equals(expectedItem)) {
                         assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
-                                locationCreator.getLocation(), updateInfo));
+                                locationCreator.getLocation(), actualObjectState));
                     }
                 }
                 return;
             case MAP:
-                assertEqualityOfMapItems(actualItem, expectedItem, parentClass, locationCreator, updateInfo);
+                assertEqualityOfMapItems(actualItem, expectedItem, parentClass, locationCreator, actualObjectState);
                 break;
             case COLLECTION:
-                assertEqualityOfCollectionItems(actualItem, expectedItem, parentClass, locationCreator, updateInfo);
+                assertEqualityOfCollectionItems(actualItem, expectedItem, parentClass, locationCreator, actualObjectState);
                 break;
             case ARRAY:
                 assertEqualityOfArrayItems(actualItem, expectedItem, parentClass, locationCreator);
@@ -91,12 +115,15 @@ public abstract class DeepComparator {
                 log.warn("No deep verification of the field:  " + locationCreator.getLocation());
                 if (!actualItem.equals(expectedItem)) {
                     assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
-                            locationCreator.getLocation(), updateInfo));
+                            locationCreator.getLocation(), actualObjectState));
                 }
         }
     }
 
-    private void compareFields(Object actualItem, Object expectedItem, Class parentClass, LocationCreator locationCreator) {
+    private <T> void compareFields(Object actualItem,
+                                   Object expectedItem,
+                                   Class<T> parentClass,
+                                   LocationCreator locationCreator) {
         final List<Field> fields = extractFieldsFromClassAndSuperClass(parentClass, new ArrayList<>());
 
         for (Field field : fields) {
@@ -109,30 +136,32 @@ public abstract class DeepComparator {
             } else {
                 log.debug("No deep verification of the field:  " + variableInfo(parentClass, field));
                 if (!actualObj.equals(expectedObj)) {
-                    UpdateInfo updateInfo = new UpdateInfo(actualObj.getClass());
+                    ActualObjectState actualObjectState = new ActualObjectState(actualObj.getClass());
                     assertionCreator.fail(failMessageCreator(actualObj, expectedObj,
-                            locationCreator.locationOfField(field).getLocation(), updateInfo));
+                            locationCreator.locationOfField(field).getLocation(), actualObjectState));
                 }
             }
 
         }
     }
 
-    private void assertEqualityOfArrayItems(Object actualItem, Object expectedItem,
-                                            Class parentClass, LocationCreator locationCreator) {
+    private <T> void assertEqualityOfArrayItems(Object actualItem,
+                                                Object expectedItem,
+                                                Class<T> parentClass,
+                                                LocationCreator locationCreator) {
         int actualLength = Array.getLength(actualItem);
         int expectedLength = Array.getLength(expectedItem);
-        UpdateInfo updateInfo = new UpdateInfo(actualItem.getClass());
+        ActualObjectState actualObjectState = new ActualObjectState(actualItem.getClass());
         if (actualLength != expectedLength) {
             assertionCreator.fail(failMessageCreator(actualLength, expectedLength,
-                    locationCreator.getLocation(), updateInfo));
+                    locationCreator.getLocation(), actualObjectState));
         }
         if (config.isWithAnyOrder()) {
-            Map<Object, Long> actualMap = new HashMap();
-            Map<Object, Long> expectedMap = new HashMap();
+            Map<Object, Long> actualMap = new HashMap<>();
+            Map<Object, Long> expectedMap = new HashMap<>();
             for (int i = 0; i < actualLength; i++) {
                 Object actualElement = Array.get(actualItem, i);
-                if (actualMap.keySet().contains(actualElement)) {
+                if (actualMap.containsKey(actualElement)) {
                     actualMap.put(actualElement, actualMap.get(actualElement) + 1);
                 } else {
                     actualMap.put(actualElement, 1L);
@@ -140,7 +169,7 @@ public abstract class DeepComparator {
             }
             for (int i = 0; i < expectedLength; i++) {
                 Object expectedElement = Array.get(expectedItem, i);
-                if (expectedMap.keySet().contains(expectedElement)) {
+                if (expectedMap.containsKey(expectedElement)) {
                     expectedMap.put(expectedElement, expectedMap.get(expectedElement) + 1);
                 } else {
                     expectedMap.put(expectedElement, 1L);
@@ -149,8 +178,8 @@ public abstract class DeepComparator {
             if (actualMap.size() == actualLength && expectedMap.size() == expectedLength) {
                 assertEqualityOfSets(actualMap.keySet(), expectedMap.keySet(), locationCreator);
             } else {
-                updateInfo.setCollectionDuplicatesIfNotSet(actualItem.getClass(), extractItemClass(actualMap.keySet()));
-                assertEqualityOfMapItems(actualMap, expectedMap, parentClass, locationCreator, updateInfo);
+                actualObjectState.setCollectionDuplicatesIfNotSet(actualItem.getClass(), extractItemClass(actualMap.keySet()));
+                assertEqualityOfMapItems(actualMap, expectedMap, parentClass, locationCreator, actualObjectState);
             }
         } else {
             for (int i = 0; i < actualLength; i++) {
@@ -159,48 +188,48 @@ public abstract class DeepComparator {
                     expectedElement = Array.get(expectedItem, i);
                 }
                 deepCompare(Array.get(actualItem, i), expectedElement, parentClass,
-                        locationCreator.locationOnPosition(i), updateInfo);
+                        locationCreator.locationOnPosition(i), actualObjectState);
             }
             for (int i = actualLength; i < expectedLength; i++) {
                 deepCompare(null, Array.get(expectedItem, i), parentClass,
-                        locationCreator.locationOnPosition(i), updateInfo);
+                        locationCreator.locationOnPosition(i), actualObjectState);
             }
         }
     }
 
-    private void assertEqualityOfCollectionItems(Object actualItem,
-                                                 Object expectedItem,
-                                                 Class parentClass,
-                                                 LocationCreator locationCreator,
-                                                 UpdateInfo updateInfo) {
-        Collection actualCollection = (Collection) actualItem;
-        Collection expectedCollection = (Collection) expectedItem;
+    private <T> void assertEqualityOfCollectionItems(Object actualItem,
+                                                     Object expectedItem,
+                                                     Class<T> parentClass,
+                                                     LocationCreator locationCreator,
+                                                     ActualObjectState actualObjectState) {
+        Collection<?> actualCollection = (Collection<?>) actualItem;
+        Collection<?> expectedCollection = (Collection<?>) expectedItem;
         if (actualCollection.size() != expectedCollection.size()) {
             assertionCreator.fail(failMessageCreator(actualCollection.size(), expectedCollection.size(),
-                    locationCreator.getLocation(), updateInfo));
+                    locationCreator.getLocation(), actualObjectState));
         }
         if (actualItem instanceof Set) {
             assertEqualityOfSets(actualCollection, expectedCollection, locationCreator);
         } else if (config.isWithAnyOrder()) {
-            Set actualSet = new HashSet(actualCollection);
-            Set expectedSet = new HashSet(expectedCollection);
+            Set<?> actualSet = new HashSet<>(actualCollection);
+            Set<?> expectedSet = new HashSet<>(expectedCollection);
             if (actualSet.size() == actualCollection.size() && expectedSet.size() == expectedCollection.size()) {
                 assertEqualityOfSets(actualSet, expectedSet, locationCreator);
             } else {
-                Map<Object, Long> actualMap = new HashMap();
+                Map<Object, Long> actualMap = new HashMap<>();
                 for (Object item : actualSet) {
                     actualMap.put(item, actualCollection.stream().filter(el -> el.equals(item)).count());
                 }
-                Map<Object, Long> expectedMap = new HashMap();
+                Map<Object, Long> expectedMap = new HashMap<>();
                 for (Object item : expectedSet) {
                     expectedMap.put(item, expectedCollection.stream().filter(el -> el.equals(item)).count());
                 }
-                updateInfo.setCollectionDuplicatesIfNotSet(actualItem.getClass(), extractItemClass(actualSet));
-                assertEqualityOfMapItems(actualMap, expectedMap, parentClass, locationCreator, updateInfo);
+                actualObjectState.setCollectionDuplicatesIfNotSet(actualItem.getClass(), extractItemClass(actualSet));
+                assertEqualityOfMapItems(actualMap, expectedMap, parentClass, locationCreator, actualObjectState);
             }
         } else {
-            Iterator actIterator = actualCollection.iterator();
-            Iterator expIterator = expectedCollection.iterator();
+            Iterator<?> actIterator = actualCollection.iterator();
+            Iterator<?> expIterator = expectedCollection.iterator();
             int i = 0;
             while (actIterator.hasNext() && expIterator.hasNext()) {
                 deepCompare(actIterator.next(), expIterator.next(), parentClass, locationCreator.locationOnPosition(i++));
@@ -208,9 +237,10 @@ public abstract class DeepComparator {
         }
     }
 
-    private void assertEqualityOfSets(Collection actualCollection, Collection expectedCollection,
+    private void assertEqualityOfSets(Collection<?> actualCollection,
+                                      Collection<?> expectedCollection,
                                       LocationCreator locationCreator) {
-        Iterator actIterator = actualCollection.iterator();
+        Iterator<?> actIterator = actualCollection.iterator();
         boolean foundDiffs = false;
         while (actIterator.hasNext()) {
             Object actItem = actIterator.next();
@@ -220,9 +250,7 @@ public abstract class DeepComparator {
             }
         }
         if (foundDiffs) {
-            Iterator expIterator = expectedCollection.iterator();
-            while (expIterator.hasNext()) {
-                Object expItem = expIterator.next();
+            for (Object expItem : expectedCollection) {
                 if (!actualCollection.contains(expItem)) {
                     assertionCreator.fail(failMessageCreator(expItem, false, locationCreator.getLocation()));
                 }
@@ -230,32 +258,36 @@ public abstract class DeepComparator {
         }
     }
 
-    private void assertEqualityOfMapItems(Object actualItem, Object expectedItem, Class parentClass,
-                                          LocationCreator locationCreator, UpdateInfo updateInfo) {
-        Map actualMap = (Map) actualItem;
-        Map expectedMap = (Map) expectedItem;
-        if (actualMap.size() != expectedMap.size() && !updateInfo.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
+    private <T> void assertEqualityOfMapItems(Object actualItem,
+                                              Object expectedItem,
+                                              Class<T> parentClass,
+                                              LocationCreator locationCreator,
+                                              ActualObjectState actualObjectState) {
+        Map<?, ?> actualMap = (Map<?, ?>) actualItem;
+        Map<?, ?> expectedMap = (Map<?, ?>) expectedItem;
+        if (actualMap.size() != expectedMap.size() && !actualObjectState.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
             assertionCreator.fail(failMessageCreator(actualMap.size(), expectedMap.size(),
-                    locationCreator.getLocation(), updateInfo));
+                    locationCreator.getLocation(), actualObjectState));
         }
-        for (Map.Entry entry : ((Map<?, ?>) actualItem).entrySet()) {
-            updateInfo.setNumbersValidationKey(entry.getKey());
+        for (Map.Entry<?, ?> entry : ((Map<?, ?>) actualItem).entrySet()) {
+            actualObjectState.setNumbersValidationKey(entry.getKey());
             deepCompare(entry.getValue(), ((Map<?, ?>) expectedItem).get(entry.getKey()), parentClass,
-                    locationCreator.locationOnPosition(entry.getKey()), updateInfo);
+                    locationCreator.locationOnPosition(entry.getKey()), actualObjectState);
         }
         Set<?> omittedKeys = new HashSet<>(expectedMap.keySet());
-        omittedKeys.removeAll(actualMap.keySet());
+        Set<?> keysToRemove = actualMap.keySet();
+        omittedKeys.removeAll(keysToRemove);
         for (Object expectedKey : omittedKeys) {
-            updateInfo.setNumbersValidationKey(expectedKey);
+            actualObjectState.setNumbersValidationKey(expectedKey);
             deepCompare(((Map<?, ?>) actualItem).getOrDefault(expectedKey, null),
                     ((Map<?, ?>) expectedItem).get(expectedKey),
-                    parentClass, locationCreator.locationOnPosition(expectedKey), updateInfo);
+                    parentClass, locationCreator.locationOnPosition(expectedKey), actualObjectState);
         }
     }
 
-    private List<Field> extractFieldsFromClassAndSuperClass(Class parentClass, List<Field> fieldsList) {
+    private <T> List<Field> extractFieldsFromClassAndSuperClass(Class<T> parentClass, List<Field> fieldsList) {
         fieldsList.addAll(List.of(parentClass.getDeclaredFields()));
-        Class superClass = parentClass.getSuperclass();
+        Class<?> superClass = parentClass.getSuperclass();
         if (superClass.equals(Object.class)) {
             return fieldsList;
         } else {
@@ -267,11 +299,11 @@ public abstract class DeepComparator {
         try {
             return field.get(obj);
         } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Illegal access to field " + field.toString());
+            throw new IllegalStateException("Illegal access to field " + field);
         }
     }
 
-    private Class extractItemClass(Object o) {
+    private Class<?> extractItemClass(Object o) {
         if (o.getClass().isArray() && Array.getLength(o) > 0) {
             return Array.get(o, 0).getClass();
         } else if (o instanceof Set && !((Set<?>) o).isEmpty()) {
@@ -282,7 +314,7 @@ public abstract class DeepComparator {
         }
     }
 
-    private boolean isProjectPackageClass(Class clazz) {
+    private boolean isProjectPackageClass(Class<?> clazz) {
         return config.getDeepVerifiablePackages().stream().anyMatch(definedPackage -> clazz.getName().contains(definedPackage));
     }
 }

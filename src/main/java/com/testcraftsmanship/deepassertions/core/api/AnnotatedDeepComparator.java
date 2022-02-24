@@ -14,7 +14,7 @@ public class AnnotatedDeepComparator extends DeepComparator {
     }
 
     @Override
-    boolean isDeepVerifiableField(Class parentClass, Field field) {
+    <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field) {
         return isDeepVerifiable(parentClass, field);
     }
 

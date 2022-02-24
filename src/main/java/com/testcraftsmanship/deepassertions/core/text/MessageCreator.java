@@ -10,12 +10,12 @@ public final class MessageCreator {
     private MessageCreator() {
     }
 
-    public static String failMessageCreator(Object actual, Object expected, String depth, UpdateInfo updateInfo) {
-        if (updateInfo.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
+    public static String failMessageCreator(Object actual, Object expected, String depth, ActualObjectState actualObjectState) {
+        if (actualObjectState.getCheckType().equals(CheckType.COLLECTION_DUPLICATES)) {
             expected = expected == null ? 0 : expected;
-            String elementType = extractCollectionElementType(updateInfo);
+            String elementType = extractCollectionElementType(actualObjectState);
             return String.format(Messages.DIFFERENT_NUMBER_WITH_VALUE,
-                    depth, elementType, actualNumberToMessage(actual), updateInfo.getNumbersValidationKey(), expected);
+                    depth, elementType, actualNumberToMessage(actual), actualObjectState.getNumbersValidationKey(), expected);
         }
         if (actual == null && expected == null) {
             throw new IllegalArgumentException("Failure message can not be generated as both objects are null");
@@ -43,23 +43,23 @@ public final class MessageCreator {
         }
     }
 
-    public static String failMessageCreator(int actualSize, int expectedSize, String depth, UpdateInfo updateInfo) {
+    public static String failMessageCreator(int actualSize, int expectedSize, String depth, ActualObjectState actualObjectState) {
         return String.format(Messages.DIFFERENT_COLLECTIONS_SIZES,
-                depth, classNameExtractor(updateInfo.getRealClass()), actualNumberToMessage(actualSize), expectedSize);
+                depth, classNameExtractor(actualObjectState.getRealClass()), actualNumberToMessage(actualSize), expectedSize);
     }
 
-    public static String variableInfo(Class clazz) {
+    public static String variableInfo(Class<?> clazz) {
         return clazz.getSimpleName();
     }
 
-    public static String variableInfo(Class clazz, Field field) {
+    public static String variableInfo(Class<?> clazz, Field field) {
         return clazz.getSimpleName() + ": " + field.getType().getSimpleName() + " " + field.getName();
     }
 
-    private static String extractCollectionElementType(UpdateInfo updateInfo) {
+    private static String extractCollectionElementType(ActualObjectState actualObjectState) {
         String elementType = "";
-        if (!updateInfo.getRealClass().isArray()) {
-            elementType = "<" + updateInfo.getItemClass().getSimpleName() + ">";
+        if (!actualObjectState.getRealClass().isArray()) {
+            elementType = "<" + actualObjectState.getItemClass().getSimpleName() + ">";
         }
         return elementType;
     }
