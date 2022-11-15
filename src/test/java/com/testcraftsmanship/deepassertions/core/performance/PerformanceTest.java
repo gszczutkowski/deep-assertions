@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@Tag("performance")
+@Tag("more-heap-required")
 public class PerformanceTest extends BasePerformanceTest {
     private static final int SIZE = 1000;
 
@@ -36,7 +36,7 @@ public class PerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(60000);
+        assertThat(timeElapsed).isLessThan(70000);
     }
 
     @DeepVerifiable
