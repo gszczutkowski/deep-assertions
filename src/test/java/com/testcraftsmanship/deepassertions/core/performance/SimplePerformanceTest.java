@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
+@Tag("performance")
 public class SimplePerformanceTest extends BasePerformanceTest {
 
     @Test
@@ -33,7 +34,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Map assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(9000);
+        assertThat(timeElapsed).isLessThan(14000);
     }
 
     @Test
@@ -55,7 +56,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Array assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(4000);
+        assertThat(timeElapsed).isLessThan(5500);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("List assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(2500);
+        assertThat(timeElapsed).isLessThan(4500);
     }
 
     @Test
@@ -102,6 +103,6 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Set assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(2000);
+        assertThat(timeElapsed).isLessThan(4000);
     }
 }

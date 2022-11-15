@@ -24,4 +24,4 @@ jobs:
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Run Tests
-        run: mvn test -DexcludedGroups="more-heap-required"
+        run: mvn test -DexcludedGroups="performance"

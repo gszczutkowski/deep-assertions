@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@Tag("more-heap-required")
+@Tag("performance")
 public class PerformanceTest extends BasePerformanceTest {
     private static final int SIZE = 1000;
 
