@@ -1,5 +1,10 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
+import com.testcraftsmanship.deepassertions.core.api.comparator.AnnotatedDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DefinedDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.LocalDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.items.DeepAssertType;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +14,7 @@ import static com.testcraftsmanship.deepassertions.core.config.Config.DEFAULT_DE
 @Slf4j
 public final class DeepAssertions {
     private final Object actualItem;
-    private DeepComparator deepComparator;
-    private Config config;
+    private final Config config;
 
     private DeepAssertions(Object actualItem) {
         this.actualItem = actualItem;
@@ -22,8 +26,7 @@ public final class DeepAssertions {
     }
 
     public void isEqualTo(Object expected) {
-        this.deepComparator = new DeepComparator(config);
-        deepComparator.compare(actualItem, expected, expected.getClass(), new LocationCreator(config, actualItem.getClass()));
+        getComparator().compare(actualItem, expected, expected.getClass(), new LocationCreator(actualItem.getClass()));
     }
 
     public DeepAssertions withAnyOrder() {
@@ -45,5 +48,17 @@ public final class DeepAssertions {
             return this;
         }
         throw new IllegalStateException("You can use default assertion type or set one of: LOCAL or ANNOTATED");
+    }
+
+    private DeepComparator getComparator() {
+        if (DeepAssertType.LOCAL.equals(config.getDeepAssertType())) {
+            return new LocalDeepComparator(config);
+        } else if (DeepAssertType.ANNOTATED.equals(config.getDeepAssertType())) {
+            return new AnnotatedDeepComparator(config);
+        } else if (DeepAssertType.DEFINED.equals(config.getDeepAssertType())) {
+            return new DefinedDeepComparator(config);
+        } else {
+            throw new IllegalStateException("There is no matching comparator");
+        }
     }
 }

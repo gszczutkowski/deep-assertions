@@ -36,7 +36,7 @@ public class PerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(60000);
+        assertThat(timeElapsed).isLessThan(70000);
     }
 
     @DeepVerifiable

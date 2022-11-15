@@ -1,4 +1,4 @@
-package com.testcraftsmanship.deepassertions.core.api;
+package com.testcraftsmanship.deepassertions.core.api.items;
 
 /**
  * DEFINED - then assertion requires keyword, only annotations with this keyword will be taken

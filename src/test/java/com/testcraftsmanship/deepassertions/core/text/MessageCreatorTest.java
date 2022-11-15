@@ -21,8 +21,8 @@ public class MessageCreatorTest {
     @MethodSource("objectToMessage")
     public void correctMessageShouldBeCreatedForObjects(Object actual, Object expected, String expectedMessage) {
         String path = "Location.item";
-        UpdateInfo updateInfo = new UpdateInfo(actual.getClass());
-        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, updateInfo);
+        ActualObjectState actualObjectState = new ActualObjectState(actual.getClass());
+        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, actualObjectState);
         assertThat(actualMessage).isEqualTo(expectedMessage);
     }
 
@@ -30,9 +30,9 @@ public class MessageCreatorTest {
     @MethodSource("objectToMessageInvalid")
     public void correctMessageShouldBeCreatedForInvalidObjects(Object actual, Object expected, String expectedMessage) {
         String path = "Location.item";
-        Class theClass = actual != null ? actual.getClass() : expected.getClass();
-        UpdateInfo updateInfo = new UpdateInfo(theClass);
-        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, updateInfo);
+        Class<?> theClass = actual != null ? actual.getClass() : expected.getClass();
+        ActualObjectState actualObjectState = new ActualObjectState(theClass);
+        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, actualObjectState);
         assertThat(actualMessage).isEqualTo(expectedMessage);
     }
 
@@ -40,8 +40,8 @@ public class MessageCreatorTest {
     @MethodSource("objectSizeToMessage")
     public void correctMessageShouldBeCreatedForSizes(int actual, int expected, Object object, String expectedMessage) {
         String path = "Location.item";
-        UpdateInfo updateInfo = new UpdateInfo(object.getClass());
-        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, updateInfo);
+        ActualObjectState actualObjectState = new ActualObjectState(object.getClass());
+        String actualMessage = MessageCreator.failMessageCreator(actual, expected, path, actualObjectState);
         assertThat(actualMessage).isEqualTo(expectedMessage);
     }
 
@@ -49,7 +49,7 @@ public class MessageCreatorTest {
     public void exceptionShouldBeThrownWhenBothObjectsAreNull() {
         String path = "Location.item";
         assertThatThrownBy(() -> {
-            MessageCreator.failMessageCreator(null, null, path, new UpdateInfo(null));
+            MessageCreator.failMessageCreator(null, null, path, new ActualObjectState(null));
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContainingAll(
                         "Failure message can not be generated as both objects are null");
@@ -113,6 +113,6 @@ public class MessageCreatorTest {
     }
 
     enum Color {
-        RED, BLACK;
+        RED, BLACK
     }
 }

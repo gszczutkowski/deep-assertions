@@ -1,5 +1,6 @@
 package com.testcraftsmanship.deepassertions.core.base.testclasses.local;
 
+import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiableExclude;
 import lombok.AllArgsConstructor;
 
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.util.Objects;
 public class Mage {
     private String name;
     private int spellPower;
+    @DeepVerifiableExclude
     private Staff staff;
 
     @Override

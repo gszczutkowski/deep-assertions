@@ -1,29 +1,26 @@
 package com.testcraftsmanship.deepassertions.core.base.testclasses.local;
 
+import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiable;
 import lombok.AllArgsConstructor;
 
 import java.util.Objects;
 
 @AllArgsConstructor
-public class Staff {
-    private boolean twoHanded;
-    private int power;
+public class Druid {
+    private String name;
+    @DeepVerifiable
+    private Staff staff;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Staff staff = (Staff) o;
-        return power == staff.power;
+        Druid druid = (Druid) o;
+        return name.equals(druid.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(power);
-    }
-
-    @Override
-    public String toString() {
-        return twoHanded ? "Two-handed staff with power " + power : "Single-handed staff with power " + power;
+        return Objects.hash(name);
     }
 }
