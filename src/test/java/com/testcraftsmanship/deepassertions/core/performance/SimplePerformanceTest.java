@@ -33,7 +33,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Map assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(14000);
+        assertThat(timeElapsed).isLessThan(9000);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Array assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(5500);
+        assertThat(timeElapsed).isLessThan(4000);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("List assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(4500);
+        assertThat(timeElapsed).isLessThan(2500);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class SimplePerformanceTest extends BasePerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         log.info("Set assertion execution time: {}ms", timeElapsed);
-        assertThat(timeElapsed).isLessThan(4000);
+        assertThat(timeElapsed).isLessThan(2000);
     }
 }
