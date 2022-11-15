@@ -1,5 +1,7 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.LocalDeepComparator;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;

@@ -1,4 +1,4 @@
-package com.testcraftsmanship.deepassertions.core.api;
+package com.testcraftsmanship.deepassertions.core.api.comparator;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiableExclude;
 import com.testcraftsmanship.deepassertions.core.config.Config;
@@ -11,12 +11,12 @@ import java.util.Map;
 @Slf4j
 public class LocalDeepComparator extends DeepComparator {
 
-    LocalDeepComparator(Config config) {
+    public LocalDeepComparator(Config config) {
         super(config);
     }
 
     @Override
-    <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field) {
+    public <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field) {
         return isDeepVerifiableClass(parentClass) && isDeepVerifiableField(field)
                 && !field.isAnnotationPresent(DeepVerifiableExclude.class);
     }

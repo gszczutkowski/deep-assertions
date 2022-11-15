@@ -1,5 +1,10 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
+import com.testcraftsmanship.deepassertions.core.api.comparator.AnnotatedDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DefinedDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.LocalDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.items.DeepAssertType;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import lombok.extern.slf4j.Slf4j;

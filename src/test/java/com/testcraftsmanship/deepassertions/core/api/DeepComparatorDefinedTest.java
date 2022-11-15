@@ -1,6 +1,8 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiable;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DefinedDeepComparator;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 public class DeepComparatorDefinedTest extends BaseTest {
-
 
     @Test
     public void shouldUseEqualsOnObjectsWhenNoDefinedDeepVerifiableAnnotationTag() {

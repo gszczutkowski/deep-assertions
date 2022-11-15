@@ -2,6 +2,8 @@ package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiable;
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiableExclude;
+import com.testcraftsmanship.deepassertions.core.api.comparator.AnnotatedDeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.ElfWarrior;
@@ -77,7 +79,7 @@ public class DeepComparatorAnnotatedTest extends BaseTest {
 
     @Test
     public void fieldAnnotatedOnClassLevelShouldBeVerifiable() throws NoSuchFieldException {
-        Field annotatedOnFieldLevel = new ClassA3().getClass().getDeclaredField("fieldA");
+        Field annotatedOnFieldLevel = ClassA3.class.getDeclaredField("fieldA");
         boolean isDeepVerifiableField = deepComparator.isDeepVerifiableField(ClassA3.class, annotatedOnFieldLevel);
         org.assertj.core.api.Assertions.assertThat(isDeepVerifiableField).isTrue();
 
@@ -85,28 +87,28 @@ public class DeepComparatorAnnotatedTest extends BaseTest {
 
     @Test
     public void fieldAnnotatedOnFieldLevelShouldBeVerifiable() throws NoSuchFieldException {
-        Field annotatedOnClassLevel = new ClassA2().getClass().getDeclaredField("fieldA");
+        Field annotatedOnClassLevel = ClassA2.class.getDeclaredField("fieldA");
         boolean isDeepVerifiableField = deepComparator.isDeepVerifiableField(ClassA2.class, annotatedOnClassLevel);
         org.assertj.core.api.Assertions.assertThat(isDeepVerifiableField).isTrue();
     }
 
     @Test
     public void fieldNotAnnotatedShouldNotBeVerifiable() throws NoSuchFieldException {
-        Field notAnnotatedOnField = new ClassA3().getClass().getDeclaredField("fieldB");
+        Field notAnnotatedOnField = ClassA3.class.getDeclaredField("fieldB");
         boolean isDeepVerifiableField = deepComparator.isDeepVerifiableField(ClassA3.class, notAnnotatedOnField);
         org.assertj.core.api.Assertions.assertThat(isDeepVerifiableField).isFalse();
     }
 
     @Test
     public void fieldAnnotatedWithExcludeShouldNotBeVerifiable() throws NoSuchFieldException {
-        Field annotatedWitExclude = new ClassA2().getClass().getDeclaredField("fieldB");
+        Field annotatedWitExclude = ClassA2.class.getDeclaredField("fieldB");
         boolean isDeepVerifiableField = deepComparator.isDeepVerifiableField(ClassA3.class, annotatedWitExclude);
         org.assertj.core.api.Assertions.assertThat(isDeepVerifiableField).isFalse();
     }
 
     @Test
     public void fieldDoubleAnnotatedShouldBeVerifiable() throws NoSuchFieldException {
-        Field annotatedOnTweLevels = new ClassA2().getClass().getDeclaredField("fieldC");
+        Field annotatedOnTweLevels = ClassA2.class.getDeclaredField("fieldC");
         boolean isDeepVerifiableField = deepComparator.isDeepVerifiableField(ClassA2.class, annotatedOnTweLevels);
         org.assertj.core.api.Assertions.assertThat(isDeepVerifiableField).isTrue();
     }
@@ -129,6 +131,7 @@ class ClassC1 {
     public String value;
 
     @Override
+    @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass"})
     public boolean equals(Object o) {
         return true;
     }

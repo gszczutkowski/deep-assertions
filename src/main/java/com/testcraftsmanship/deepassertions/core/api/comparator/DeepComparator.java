@@ -1,7 +1,8 @@
-package com.testcraftsmanship.deepassertions.core.api;
+package com.testcraftsmanship.deepassertions.core.api.comparator;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
+import com.testcraftsmanship.deepassertions.core.fields.FieldType;
 import com.testcraftsmanship.deepassertions.core.text.ActualObjectState;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
@@ -32,17 +33,20 @@ public abstract class DeepComparator {
     private final AssertionCreator assertionCreator;
 
 
-    DeepComparator(Config config) {
+    public DeepComparator(Config config) {
         this.config = config;
         this.assertionCreator = new AssertionCreator();
     }
 
-    <T> void compare(Object actualItem, Object expectedItem, Class<T> parentClass, LocationCreator locationCreator) {
+    public <T> void compare(Object actualItem,
+                            Object expectedItem,
+                            Class<T> parentClass,
+                            LocationCreator locationCreator) {
         deepCompare(actualItem, expectedItem, parentClass, locationCreator);
         assertionCreator.performAssertions();
     }
 
-    abstract <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field);
+    public abstract <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field);
 
     private <T> void deepCompare(Object actualItem,
                                  Object expectedItem,
@@ -66,8 +70,11 @@ public abstract class DeepComparator {
                 locationCreator, new ActualObjectState(actualItem.getClass()));
     }
 
-    private <T> void deepCompare(Object actualItem, Object expectedItem, Class<T> parentClass,
-                                 LocationCreator locationCreator, ActualObjectState actualObjectState) {
+    private <T> void deepCompare(Object actualItem,
+                                 Object expectedItem,
+                                 Class<T> parentClass,
+                                 LocationCreator locationCreator,
+                                 ActualObjectState actualObjectState) {
         if (actualItem == null && expectedItem == null) {
             return;
         } else if (actualItem == null || expectedItem == null) {
@@ -130,7 +137,6 @@ public abstract class DeepComparator {
             field.setAccessible(true);
             Object actualObj = extractFieldValueFromObject(field, actualItem);
             Object expectedObj = extractFieldValueFromObject(field, expectedItem);
-            //if should not be verified then continue;
             if (isDeepVerifiableField(parentClass, field)) {
                 deepCompare(actualObj, expectedObj, parentClass, locationCreator.locationOfField(field));
             } else {
@@ -276,6 +282,7 @@ public abstract class DeepComparator {
         }
         Set<?> omittedKeys = new HashSet<>(expectedMap.keySet());
         Set<?> keysToRemove = actualMap.keySet();
+        //noinspection SuspiciousMethodCalls
         omittedKeys.removeAll(keysToRemove);
         for (Object expectedKey : omittedKeys) {
             actualObjectState.setNumbersValidationKey(expectedKey);

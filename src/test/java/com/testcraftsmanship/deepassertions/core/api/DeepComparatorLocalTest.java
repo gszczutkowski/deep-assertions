@@ -1,8 +1,11 @@
 package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiableExclude;
+import com.testcraftsmanship.deepassertions.core.api.comparator.DeepComparator;
+import com.testcraftsmanship.deepassertions.core.api.comparator.LocalDeepComparator;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Druid;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Location;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
@@ -97,9 +100,8 @@ public class DeepComparatorLocalTest extends BaseTest {
         Config config = new Config();
         config.setDeepVerifiablePackages("com.testcraftsmanship.deepassertions.core.base.testclasses.local");
         DeepComparator deepComparator = new LocalDeepComparator(config);
-        Field matchingPackageField = new Mage("Gandalf", 10, new Staff(true, 100))
-                .getClass().getDeclaredField("staff");
-        boolean isExternalDeepVerifiable = deepComparator.isDeepVerifiableField(Mage.class, matchingPackageField);
+        Field matchingPackageField = Druid.class.getDeclaredField("staff");
+        boolean isExternalDeepVerifiable = deepComparator.isDeepVerifiableField(Druid.class, matchingPackageField);
         org.assertj.core.api.Assertions.assertThat(isExternalDeepVerifiable).isTrue();
     }
 
@@ -108,8 +110,7 @@ public class DeepComparatorLocalTest extends BaseTest {
         Config config = new Config();
         config.setDeepVerifiablePackages("com.testcraftsmanship.deepassertions.core.base.testclasses.local");
         DeepComparator deepComparator = new LocalDeepComparator(config);
-        Field matchingPackageField = new Mage("Gandalf", 10, new Staff(true, 100))
-                .getClass().getDeclaredField("name");
+        Field matchingPackageField = Mage.class.getDeclaredField("name");
         boolean isExternalDeepVerifiable = deepComparator.isDeepVerifiableField(Mage.class, matchingPackageField);
         org.assertj.core.api.Assertions.assertThat(isExternalDeepVerifiable).isFalse();
     }
@@ -119,8 +120,7 @@ public class DeepComparatorLocalTest extends BaseTest {
         Config config = new Config();
         config.setDeepVerifiablePackages("com.testcraftsmanship.deepassertions.core.base.testclasses.annotated");
         DeepComparator deepComparator = new LocalDeepComparator(config);
-        Field matchingPackageField = new Mage("Gandalf", 10, new Staff(true, 100))
-                .getClass().getDeclaredField("name");
+        Field matchingPackageField = Mage.class.getDeclaredField("name");
         boolean isExternalDeepVerifiable = deepComparator.isDeepVerifiableField(Mage.class, matchingPackageField);
         org.assertj.core.api.Assertions.assertThat(isExternalDeepVerifiable).isFalse();
     }
@@ -131,11 +131,11 @@ public class DeepComparatorLocalTest extends BaseTest {
         config.setDeepVerifiablePackages("com.testcraftsmanship");
         DeepComparator deepComparator = new LocalDeepComparator(config);
 
-        Field matchingPackageFieldIncluded = new ClassLocalA().getClass().getDeclaredField("includedObjectB");
+        Field matchingPackageFieldIncluded = ClassLocalA.class.getDeclaredField("includedObjectB");
         boolean isIncludedDeepVerifiable = deepComparator.isDeepVerifiableField(ClassLocalA.class, matchingPackageFieldIncluded);
         org.assertj.core.api.Assertions.assertThat(isIncludedDeepVerifiable).isTrue();
 
-        Field matchingPackageFieldExcluded = new ClassLocalA().getClass().getDeclaredField("excludedObjectB");
+        Field matchingPackageFieldExcluded = ClassLocalA.class.getDeclaredField("excludedObjectB");
         boolean isExcludedDeepVerifiable = deepComparator.isDeepVerifiableField(ClassLocalA.class, matchingPackageFieldExcluded);
         org.assertj.core.api.Assertions.assertThat(isExcludedDeepVerifiable).isFalse();
     }

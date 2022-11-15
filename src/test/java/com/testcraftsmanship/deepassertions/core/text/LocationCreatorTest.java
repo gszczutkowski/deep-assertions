@@ -1,8 +1,5 @@
 package com.testcraftsmanship.deepassertions.core.text;
 
-import com.testcraftsmanship.deepassertions.core.api.DeepAssertType;
-import com.testcraftsmanship.deepassertions.core.config.Config;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -14,14 +11,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LocationCreatorTest {
-    private static Config config;
-
-    @BeforeAll
-    public static void setUp() {
-        config = new Config();
-        config.setDeepVerifiablePackages("com.testcraftsmanship");
-        config.setWithAnyOrder(false);
-    }
 
     @ParameterizedTest
     @MethodSource("objectToLocation")
@@ -41,7 +30,7 @@ public class LocationCreatorTest {
     private static Stream<Arguments> objectToLocation() {
         return Stream.of(
                 Arguments.of(List.of(), "ImmutableList"),
-                Arguments.of(new ArrayList(), "ArrayList"),
+                Arguments.of(new ArrayList<>(), "ArrayList"),
                 Arguments.of(new HashMap<>(), "HashMap"),
                 Arguments.of(new HashSet<>(), "HashSet"),
                 Arguments.of(new int[1], "int[]"),
@@ -56,10 +45,10 @@ public class LocationCreatorTest {
 
     private static Stream<Arguments> objectWithFieldToLocation() throws NoSuchFieldException {
         return Stream.of(
-                Arguments.of(new Item(), new Item().getClass().getDeclaredField("name"), "Item.name"),
-                Arguments.of(new Item(), new Item().getClass().getDeclaredField("namesList"), "Item.namesList()"),
-                Arguments.of(new Item(), new Item().getClass().getDeclaredField("namesMap"), "Item.namesMap()"),
-                Arguments.of(new Item(), new Item().getClass().getDeclaredField("numbers"), "Item.numbers[]")
+                Arguments.of(new Item(), Item.class.getDeclaredField("name"), "Item.name"),
+                Arguments.of(new Item(), Item.class.getDeclaredField("namesList"), "Item.namesList()"),
+                Arguments.of(new Item(), Item.class.getDeclaredField("namesMap"), "Item.namesMap()"),
+                Arguments.of(new Item(), Item.class.getDeclaredField("numbers"), "Item.numbers[]")
         );
     }
 
