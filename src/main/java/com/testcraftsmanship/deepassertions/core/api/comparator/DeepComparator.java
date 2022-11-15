@@ -2,7 +2,6 @@ package com.testcraftsmanship.deepassertions.core.api.comparator;
 
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
-import com.testcraftsmanship.deepassertions.core.fields.FieldType;
 import com.testcraftsmanship.deepassertions.core.text.ActualObjectState;
 import com.testcraftsmanship.deepassertions.core.text.CheckType;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;

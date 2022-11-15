@@ -1,7 +1,6 @@
 package com.testcraftsmanship.deepassertions.core.config;
 
 import com.testcraftsmanship.deepassertions.core.api.items.DeepAssertType;
-import com.testcraftsmanship.deepassertions.core.api.items.ValidationType;
 import lombok.Getter;
 import lombok.Setter;
 
