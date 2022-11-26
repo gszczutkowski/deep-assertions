@@ -1,6 +1,5 @@
 package com.testcraftsmanship.deepassertions.core.base.testclasses.local;
 
-import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

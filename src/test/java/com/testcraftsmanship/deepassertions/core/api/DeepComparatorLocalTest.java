@@ -8,7 +8,6 @@ import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Druid;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Location;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
-import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
@@ -18,7 +17,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -126,9 +128,23 @@ public class DeepComparatorLocalTest extends BaseTest {
     }
 
     @Test
-    public void localTypeShouldNotWorkForDefinedPackagesWithExcludeAnnotation() throws NoSuchFieldException {
+    public void excludeAnnotationShouldNotWorkWithLocalType() throws NoSuchFieldException {
         Config config = new Config();
         config.setDeepVerifiablePackages("com.testcraftsmanship");
+        DeepComparator deepComparator = new LocalDeepComparator(config);
+
+        Field matchingPackageFieldIncluded = ClassLocalA.class.getDeclaredField("includedObjectB");
+        boolean isIncludedDeepVerifiable = deepComparator.isDeepVerifiableField(ClassLocalA.class, matchingPackageFieldIncluded);
+        org.assertj.core.api.Assertions.assertThat(isIncludedDeepVerifiable).isTrue();
+
+        Field matchingPackageFieldExcluded = ClassLocalA.class.getDeclaredField("excludedObjectB");
+        boolean isExcludedDeepVerifiable = deepComparator.isDeepVerifiableField(ClassLocalA.class, matchingPackageFieldExcluded);
+        org.assertj.core.api.Assertions.assertThat(isExcludedDeepVerifiable).isTrue();
+    }
+
+    @Test
+    public void excludeAnnotationShouldWorkWithAnnotatedType() throws NoSuchFieldException {
+        Config config = new Config();
         DeepComparator deepComparator = new LocalDeepComparator(config);
 
         Field matchingPackageFieldIncluded = ClassLocalA.class.getDeclaredField("includedObjectB");

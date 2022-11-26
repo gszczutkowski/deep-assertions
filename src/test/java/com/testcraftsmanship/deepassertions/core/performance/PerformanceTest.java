@@ -1,14 +1,15 @@
 package com.testcraftsmanship.deepassertions.core.performance;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiable;
-import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import com.testcraftsmanship.deepassertions.core.api.DeepAssertions;
-import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Tag("performance")
 public class PerformanceTest extends BasePerformanceTest {
     private static final int SIZE = 1000;
-
 
 
     @Test
@@ -51,7 +51,6 @@ public class PerformanceTest extends BasePerformanceTest {
             this.uniques = new HashSet<>(namesGenerator(SIZE));
         }
     }
-
 
 
     @DeepVerifiable

@@ -4,6 +4,7 @@ import com.testcraftsmanship.deepassertions.core.fields.FieldType;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import static com.testcraftsmanship.deepassertions.core.fields.FieldType.COLLECTION;
 import static com.testcraftsmanship.deepassertions.core.fields.FieldType.MAP;
@@ -22,12 +23,23 @@ public class LocationCreator {
         this.location = fullPath;
     }
 
-    public static String classNameExtractor(Class clazz) {
+    public static String normalizeClassName(Class clazz) {
         String className = clazz.getSimpleName();
         if (clazz.getName().contains("java.util.ImmutableCollection")) {
             className = "Immutable" + className.replaceAll("([0-9]+|N)$", "");
         }
         return className;
+    }
+
+    public static String extractItemClassName(Object o) {
+        if (o instanceof Collection && !((Collection<?>) o).isEmpty()) {
+            String itemClassName = ((Collection<?>) o).iterator().next().getClass().getSimpleName();
+            return String.format("%s<%s>", normalizeClassName(o.getClass()), itemClassName);
+        } else if (o instanceof Collection) {
+            return normalizeClassName(o.getClass());
+        } else {
+            return o.getClass().getSimpleName();
+        }
     }
 
     public LocationCreator locationOfField(Field field) {
@@ -45,7 +57,7 @@ public class LocationCreator {
     }
 
     private String createLocation(Class clazz) {
-        String className = classNameExtractor(clazz);
+        String className = normalizeClassName(clazz);
         FieldType type = extractFieldType(clazz);
         if (type.equals(MAP) || type.equals(COLLECTION)) {
             return className + "()";

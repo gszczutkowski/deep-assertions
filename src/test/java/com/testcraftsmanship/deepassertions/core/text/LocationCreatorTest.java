@@ -13,9 +13,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LocationCreatorTest {
 
     @ParameterizedTest
+    @MethodSource("classToLocation")
+    public void classNameShouldBeNormalizedCorrectly(Class clazz, String expectedLocation) {
+        String actualLocation = LocationCreator.normalizeClassName(clazz);
+        assertThat(actualLocation).isEqualTo(expectedLocation);
+    }
+
+    @ParameterizedTest
     @MethodSource("objectToLocation")
     public void classNameShouldBeExtractedCorrectly(Object object, String expectedLocation) {
-        String actualLocation = LocationCreator.classNameExtractor(object.getClass());
+        String actualLocation = LocationCreator.extractItemClassName(object);
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }
 
@@ -27,9 +34,26 @@ public class LocationCreatorTest {
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }
 
+    private static Stream<Arguments> classToLocation() {
+        return Stream.of(
+                Arguments.of(List.of().getClass(), "ImmutableList"),
+                Arguments.of(new ArrayList<>().getClass(), "ArrayList"),
+                Arguments.of(new HashMap<>().getClass(), "HashMap"),
+                Arguments.of(new HashSet<>().getClass(), "HashSet"),
+                Arguments.of(new int[1].getClass(), "int[]"),
+                Arguments.of("Text".getClass(), "String"),
+                Arguments.of(((Object)10L).getClass(), "Long"),
+                Arguments.of(((Object)'a').getClass(), "Character"),
+                Arguments.of(MessageCreatorTest.Color.RED.getClass(), "Color"),
+                Arguments.of(new Item().getClass(), "Item"),
+                Arguments.of(new Date().getClass(), "Date")
+        );
+    }
+
     private static Stream<Arguments> objectToLocation() {
         return Stream.of(
                 Arguments.of(List.of(), "ImmutableList"),
+                Arguments.of(List.of("Item"), "ImmutableList<String>"),
                 Arguments.of(new ArrayList<>(), "ArrayList"),
                 Arguments.of(new HashMap<>(), "HashMap"),
                 Arguments.of(new HashSet<>(), "HashSet"),

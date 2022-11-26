@@ -11,5 +11,5 @@ public final class Messages {
     public static final String DIFFERENCE_WITH_NO_EXPECTED_VALUE
             = "%s<%s> - actual object contains value {%s}, expected one don't have it";
     public static final String DIFFERENCE_WITH_NO_ACTUAL_VALUE
-            = "%s<%s> - expected object contains value {%s}, actual aon don't have it";
+            = "%s<%s> - expected object contains value {%s}, actual one don't have it";
 }

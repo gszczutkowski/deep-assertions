@@ -1,6 +1,7 @@
 package com.testcraftsmanship.deepassertions.core.api.comparator;
 
 import com.testcraftsmanship.deepassertions.core.annotations.DeepVerifiableExclude;
+import com.testcraftsmanship.deepassertions.core.api.items.DeepAssertType;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +19,8 @@ public class LocalDeepComparator extends DeepComparator {
     @Override
     public <T> boolean isDeepVerifiableField(Class<T> parentClass, Field field) {
         return isDeepVerifiableClass(parentClass) && isDeepVerifiableField(field)
-                && !field.isAnnotationPresent(DeepVerifiableExclude.class);
+                && !(field.isAnnotationPresent(DeepVerifiableExclude.class)
+                && DeepAssertType.ANNOTATED.equals(getConfig().getDeepAssertType()));
     }
 
     private <T> boolean isDeepVerifiableClass(Class<T> clazz) {

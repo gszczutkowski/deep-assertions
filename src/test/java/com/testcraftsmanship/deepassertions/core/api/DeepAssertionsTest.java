@@ -2,7 +2,10 @@ package com.testcraftsmanship.deepassertions.core.api;
 
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
+import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,6 +18,33 @@ import java.util.stream.Stream;
 public class DeepAssertionsTest extends BaseTest {
     private static Elf first = new Elf("Lianthorn", "Ermyar");
     private static Elf second = new Elf("Rennyn", "Rosalor");
+
+    @Test
+    public void annotationsAssertTypeShouldBeActiveByDefault() {
+        Mage actualMage = new Mage("Gandalf", 10, new Staff(true, 5));
+        Mage expectedMage = new Mage("Dumbledore", 10, new Staff(false, 5));
+
+        assertThatFunctionThrows(
+                () -> DeepAssertions
+                        .assertThat(actualMage)
+                        .isEqualTo(expectedMage),
+                List.of("Multiple Failures (1 failure)",
+                        "-- failure 1 --Mage.name<String> - actual object has value {Gandalf}, expect to have {Dumbledore}"));
+    }
+
+    @Test
+    public void localAssertTypeShouldBeActivatedByAddingPackages() {
+        Mage actualMage = new Mage("Gandalf", 10, new Staff(true, 5));
+        Mage expectedMage = new Mage("Dumbledore", 10, new Staff(false, 5));
+        assertThatFunctionThrows(
+                () -> DeepAssertions
+                        .assertThat(actualMage)
+                        .withPackages("com.testcraftsmanship")
+                        .isEqualTo(expectedMage),
+                List.of("Multiple Failures (2 failures)",
+                        "-- failure 1 --Mage.name<String> - actual object has value {Gandalf}, expect to have {Dumbledore}",
+                        "-- failure 2 --Mage.staff.twoHanded<Boolean> - actual object has value {true}, expect to have {false}"));
+    }
 
     @ParameterizedTest
     @MethodSource("sameCollectionsWithDifferentOrder")
