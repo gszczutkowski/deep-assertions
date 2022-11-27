@@ -4,7 +4,8 @@ import com.testcraftsmanship.deepassertions.core.config.Messages;
 
 import java.lang.reflect.Field;
 
-import static com.testcraftsmanship.deepassertions.core.text.LocationCreator.classNameExtractor;
+import static com.testcraftsmanship.deepassertions.core.text.LocationCreator.extractItemClassName;
+import static com.testcraftsmanship.deepassertions.core.text.LocationCreator.normalizeClassName;
 
 public final class MessageCreator {
     private MessageCreator() {
@@ -16,18 +17,24 @@ public final class MessageCreator {
             String elementType = extractCollectionElementType(actualObjectState);
             return String.format(Messages.DIFFERENT_NUMBER_WITH_VALUE,
                     depth, elementType, actualNumberToMessage(actual), actualObjectState.getNumbersValidationKey(), expected);
-        }
-        if (actual == null && expected == null) {
+        } else if (actual == null && expected == null) {
             throw new IllegalArgumentException("Failure message can not be generated as both objects are null");
         } else if (actual == null || expected == null) {
             String className = actual == null ? expected.getClass().getSimpleName() : actual.getClass().getSimpleName();
             return String.format(Messages.DIFFERENT_VALUES, depth, className, actual, expected);
         } else if (actual.getClass() != expected.getClass()) {
-            return String.format(Messages.DIFFERENT_TYPES,
-                    depth, actual.getClass().getSimpleName(), expected.getClass().getSimpleName());
+            String actualNormalizedClass = normalizeClassName(actual.getClass());
+            String expectedNormalizedClass = normalizeClassName(expected.getClass());
+            if (actualNormalizedClass.equals(expectedNormalizedClass)) {
+                return String.format(Messages.DIFFERENT_VALUES,
+                        depth, extractItemClassName(actual), actual, expected);
+            } else {
+                return String.format(Messages.DIFFERENT_TYPES,
+                        depth, actualNormalizedClass, expectedNormalizedClass);
+            }
         } else {
             return String.format(Messages.DIFFERENT_VALUES,
-                    depth, actual.getClass().getSimpleName(), actual, expected);
+                    depth, extractItemClassName(actual), actual, expected);
         }
     }
 
@@ -45,7 +52,7 @@ public final class MessageCreator {
 
     public static String failMessageCreator(int actualSize, int expectedSize, String depth, ActualObjectState actualObjectState) {
         return String.format(Messages.DIFFERENT_COLLECTIONS_SIZES,
-                depth, classNameExtractor(actualObjectState.getRealClass()), actualNumberToMessage(actualSize), expectedSize);
+                depth, normalizeClassName(actualObjectState.getRealClass()), actualNumberToMessage(actualSize), expectedSize);
     }
 
     public static String variableInfo(Class<?> clazz) {

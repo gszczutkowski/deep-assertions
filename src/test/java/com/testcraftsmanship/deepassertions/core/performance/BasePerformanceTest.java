@@ -1,6 +1,5 @@
 package com.testcraftsmanship.deepassertions.core.performance;
 
-import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ public class BasePerformanceTest {
     }
 
     protected static String namesOnPosition(int position) {
-        return  "Extended kindness trifling remember he confined outlived if. Assistance sentiments yet unpleasing say. Open they an busy they my such high. An active dinner wishes at unable hardly no talked on. Immediate him her resolving his favourite. Wished denote abroad at branch at."
+        return "Extended kindness trifling remember he confined outlived if. Assistance sentiments yet unpleasing say. Open they an busy they my such high. An active dinner wishes at unable hardly no talked on. Immediate him her resolving his favourite. Wished denote abroad at branch at."
                 + position;
     }
 
@@ -48,7 +47,6 @@ public class BasePerformanceTest {
         return numbers;
     }
 
-    @Verifiable
     @EqualsAndHashCode
     static class Item {
         private final String color;

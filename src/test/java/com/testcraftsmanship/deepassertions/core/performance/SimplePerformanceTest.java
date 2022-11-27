@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class SimplePerformanceTest extends BasePerformanceTest {
 
     @Test
-    public void checkMapPerformanceInAnyOrder () {
+    public void checkMapPerformanceInAnyOrder() {
         Item item = new Item("Black");
         Map<String, Item> actualMap = nameToItemGenerator(10000);
         Map<String, Item> expectedMap = nameToItemGenerator(9999);
@@ -38,10 +38,10 @@ public class SimplePerformanceTest extends BasePerformanceTest {
     }
 
     @Test
-    public void checkArrayPerformanceInAnyOrder () {
+    public void checkArrayPerformanceInAnyOrder() {
         String[] actualArray = namesGenerator(10000).toArray(new String[10000]);
         String[] expectedArray = namesGenerator(9999).toArray(new String[9999]);
-        actualArray[4000] =  "failed";
+        actualArray[4000] = "failed";
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
@@ -60,7 +60,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
     }
 
     @Test
-    public void checkListPerformanceInAnyOrder () {
+    public void checkListPerformanceInAnyOrder() {
         List<String> actualList = namesGenerator(10000);
         List<String> expectedList = namesGenerator(10000);
         actualList.remove(9999);
@@ -83,7 +83,7 @@ public class SimplePerformanceTest extends BasePerformanceTest {
     }
 
     @Test
-    public void checkSetPerformanceInAnyOrder () {
+    public void checkSetPerformanceInAnyOrder() {
         List<String> actualList = namesGenerator(10000);
         Set<String> actualSet = new HashSet<>(actualList);
         Set<String> expectedSet = new HashSet<>(namesGenerator(9999));

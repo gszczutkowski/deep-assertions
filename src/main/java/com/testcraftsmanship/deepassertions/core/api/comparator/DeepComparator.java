@@ -1,5 +1,7 @@
 package com.testcraftsmanship.deepassertions.core.api.comparator;
 
+import com.testcraftsmanship.deepassertions.core.annotations.Verifiable;
+import com.testcraftsmanship.deepassertions.core.annotations.VerifiableExclude;
 import com.testcraftsmanship.deepassertions.core.assertions.AssertionCreator;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.ActualObjectState;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Collection;
 
+import static com.testcraftsmanship.deepassertions.core.api.comparator.BasicComparator.basicCompare;
 import static com.testcraftsmanship.deepassertions.core.fields.FieldTypeExtractor.extractFieldType;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.failMessageCreator;
 import static com.testcraftsmanship.deepassertions.core.text.MessageCreator.variableInfo;
@@ -102,10 +105,7 @@ public abstract class DeepComparator {
                     compareFields(actualItem, expectedItem, fieldClass, locationCreator);
                 } else {
                     log.debug("No deep verification of the field:  " + locationCreator.getLocation());
-                    if (!actualItem.equals(expectedItem)) {
-                        assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
-                                locationCreator.getLocation(), actualObjectState));
-                    }
+                    basicCompare(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState, assertionCreator);
                 }
                 return;
             case MAP:
@@ -119,10 +119,7 @@ public abstract class DeepComparator {
                 break;
             default:
                 log.warn("No deep verification of the field:  " + locationCreator.getLocation());
-                if (!actualItem.equals(expectedItem)) {
-                    assertionCreator.fail(failMessageCreator(actualItem, expectedItem,
-                            locationCreator.getLocation(), actualObjectState));
-                }
+                basicCompare(actualItem, expectedItem, locationCreator.getLocation(), actualObjectState, assertionCreator);
         }
     }
 
@@ -136,18 +133,25 @@ public abstract class DeepComparator {
             field.setAccessible(true);
             Object actualObj = extractFieldValueFromObject(field, actualItem);
             Object expectedObj = extractFieldValueFromObject(field, expectedItem);
-            if (isDeepVerifiableField(parentClass, field)) {
-                deepCompare(actualObj, expectedObj, parentClass, locationCreator.locationOfField(field));
-            } else {
-                log.debug("No deep verification of the field:  " + variableInfo(parentClass, field));
-                if (!actualObj.equals(expectedObj)) {
+            if (isIncludedToVerification(field)) {
+                if (isDeepVerifiableField(parentClass, field)) {
+                    deepCompare(actualObj, expectedObj, parentClass, locationCreator.locationOfField(field));
+                } else {
+                    log.debug("No deep verification of the field:  " + variableInfo(parentClass, field));
                     ActualObjectState actualObjectState = new ActualObjectState(actualObj.getClass());
-                    assertionCreator.fail(failMessageCreator(actualObj, expectedObj,
-                            locationCreator.locationOfField(field).getLocation(), actualObjectState));
+                    basicCompare(actualObj, expectedObj,
+                            locationCreator.locationOfField(field).getLocation(), actualObjectState, assertionCreator);
+
                 }
             }
 
         }
+    }
+
+    private boolean isIncludedToVerification(Field field) {
+        return field.isAnnotationPresent(Verifiable.class)
+                || getConfig().isAllFieldsIncludedByDefault()
+                && !field.isAnnotationPresent(VerifiableExclude.class);
     }
 
     private <T> void assertEqualityOfArrayItems(Object actualItem,
@@ -312,11 +316,11 @@ public abstract class DeepComparator {
     private Class<?> extractItemClass(Object o) {
         if (o.getClass().isArray() && Array.getLength(o) > 0) {
             return Array.get(o, 0).getClass();
-        } else if (o instanceof Set && !((Set<?>) o).isEmpty()) {
-            return ((Set<?>) o).iterator().next().getClass();
+        } else if (o instanceof Collection && !((Collection<?>) o).isEmpty()) {
+            return ((Collection<?>) o).iterator().next().getClass();
         } else {
             log.warn("Unable to extract element type from Set");
-            return Object.class;
+            return o.getClass();
         }
     }
 
