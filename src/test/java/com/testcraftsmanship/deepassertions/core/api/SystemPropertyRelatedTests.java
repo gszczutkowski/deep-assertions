@@ -4,10 +4,8 @@ import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 public class SystemPropertyRelatedTests extends BaseTest {
 
     @Test
@@ -33,6 +31,6 @@ public class SystemPropertyRelatedTests extends BaseTest {
 
     @AfterEach
     public void cleanUp() {
-        System.clearProperty("DEEP_ASSERT_PACKAGE");
+        System.clearProperty("DEEP_ASSERT_PACKAGES");
     }
 }

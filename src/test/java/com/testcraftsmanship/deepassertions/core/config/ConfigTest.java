@@ -80,7 +80,7 @@ public class ConfigTest {
 
     @AfterEach
     public void cleanUp() {
-        System.clearProperty("DEEP_ASSERT_PACKAGE");
+        System.clearProperty("DEEP_ASSERT_PACKAGES");
         System.clearProperty("DEEP_ASSERT_TYPE");
         System.clearProperty("ASSERT_TAGS");
     }
