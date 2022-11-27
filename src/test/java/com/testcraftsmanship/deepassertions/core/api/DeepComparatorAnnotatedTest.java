@@ -15,11 +15,13 @@ import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
+@Disabled
 public class DeepComparatorAnnotatedTest extends BaseTest {
     private static Config config;
     private DeepComparator deepComparator;

@@ -4,8 +4,10 @@ import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 public class SystemPropertyRelatedTests extends BaseTest {
 
     @Test

@@ -7,10 +7,12 @@ import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import com.testcraftsmanship.deepassertions.core.config.Config;
 import com.testcraftsmanship.deepassertions.core.text.LocationCreator;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+@Disabled
 public class DeepComparatorTest  extends BaseTest {
 
     @Test

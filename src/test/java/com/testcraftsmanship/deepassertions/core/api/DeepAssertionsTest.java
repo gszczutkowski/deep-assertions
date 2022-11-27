@@ -5,6 +5,7 @@ import com.testcraftsmanship.deepassertions.core.base.testclasses.annotated.Elf;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
 import com.testcraftsmanship.deepassertions.core.config.Messages;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@Disabled
 public class DeepAssertionsTest extends BaseTest {
     private static Elf first = new Elf("Lianthorn", "Ermyar");
     private static Elf second = new Elf("Rennyn", "Rosalor");
