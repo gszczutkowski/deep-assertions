@@ -1,7 +1,6 @@
 package com.testcraftsmanship.deepassertions.core.text;
 
 import com.testcraftsmanship.deepassertions.core.config.Messages;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,7 +15,6 @@ import static com.testcraftsmanship.deepassertions.core.text.MessageCreatorTest.
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Disabled
 public class MessageCreatorTest {
 
     @ParameterizedTest

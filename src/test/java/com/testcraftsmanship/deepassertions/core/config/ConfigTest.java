@@ -2,12 +2,10 @@ package com.testcraftsmanship.deepassertions.core.config;
 
 import com.testcraftsmanship.deepassertions.core.api.items.DeepAssertType;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 public class ConfigTest {
     @Test
     public void defaultPackageAndAssertTypeShouldBeTakenFromSystemProperties() {
