@@ -3,7 +3,7 @@ package com.testcraftsmanship.deepassertions.core.api;
 import com.testcraftsmanship.deepassertions.core.base.BaseTest;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Mage;
 import com.testcraftsmanship.deepassertions.core.base.testclasses.local.Staff;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class SystemPropertyRelatedTests extends BaseTest {
@@ -29,8 +29,8 @@ public class SystemPropertyRelatedTests extends BaseTest {
                 .isEqualTo(expectedMage);
     }
 
-    @AfterAll
-    public static void cleanUp() {
+    @AfterEach
+    public void cleanUp() {
         System.clearProperty("DEEP_ASSERT_PACKAGE");
     }
 }
